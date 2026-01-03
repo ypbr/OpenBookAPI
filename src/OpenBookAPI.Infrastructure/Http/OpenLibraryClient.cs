@@ -12,10 +12,17 @@ public class OpenLibraryClient : IOpenLibraryClient
 {
     private readonly HttpClient _httpClient;
     private readonly JsonSerializerOptions _jsonOptions;
+    private readonly BookMapper _bookMapper;
+    private readonly AuthorMapper _authorMapper;
 
-    public OpenLibraryClient(IHttpClientFactory httpClientFactory)
+    public OpenLibraryClient(
+        IHttpClientFactory httpClientFactory,
+        BookMapper bookMapper,
+        AuthorMapper authorMapper)
     {
         _httpClient = httpClientFactory.CreateClient("OpenLibrary");
+        _bookMapper = bookMapper;
+        _authorMapper = authorMapper;
         _jsonOptions = new JsonSerializerOptions
         {
             PropertyNameCaseInsensitive = true
@@ -44,21 +51,21 @@ public class OpenLibraryClient : IOpenLibraryClient
             {
                 var dto = await response.Content.ReadFromJsonAsync<OpenLibraryWorkDto>(_jsonOptions);
                 if (dto == null) return null;
-                return BookMapper.ToBookDetail(dto) as T;
+                return _bookMapper.ToBookDetail(dto) as T;
             }
 
             if (typeof(T) == typeof(AuthorDetail))
             {
                 var dto = await response.Content.ReadFromJsonAsync<OpenLibraryAuthorDto>(_jsonOptions);
                 if (dto == null) return null;
-                return AuthorMapper.ToAuthorDetail(dto) as T;
+                return _authorMapper.ToAuthorDetail(dto) as T;
             }
 
             if (typeof(T) == typeof(BookEdition))
             {
                 var dto = await response.Content.ReadFromJsonAsync<OpenLibraryEditionDto>(_jsonOptions);
                 if (dto == null) return null;
-                return BookMapper.ToBookEdition(dto) as T;
+                return _bookMapper.ToBookEdition(dto) as T;
             }
 
             return await response.Content.ReadFromJsonAsync<T>(_jsonOptions);
@@ -90,7 +97,7 @@ public class OpenLibraryClient : IOpenLibraryClient
             {
                 var dto = await response.Content.ReadFromJsonAsync<OpenLibrarySearchDto>(_jsonOptions);
                 if (dto == null) return null;
-                return BookMapper.ToBookSearchResult(dto, page, limit) as T;
+                return _bookMapper.ToBookSearchResult(dto, page, limit) as T;
             }
 
             return await response.Content.ReadFromJsonAsync<T>(_jsonOptions);
@@ -122,7 +129,7 @@ public class OpenLibraryClient : IOpenLibraryClient
             {
                 var dto = await response.Content.ReadFromJsonAsync<OpenLibraryAuthorSearchDto>(_jsonOptions);
                 if (dto == null) return null;
-                return AuthorMapper.ToAuthorSearchResult(dto, page, limit) as T;
+                return _authorMapper.ToAuthorSearchResult(dto, page, limit) as T;
             }
 
             return await response.Content.ReadFromJsonAsync<T>(_jsonOptions);
@@ -156,7 +163,7 @@ public class OpenLibraryClient : IOpenLibraryClient
             {
                 var dto = await response.Content.ReadFromJsonAsync<OpenLibraryAuthorWorksDto>(_jsonOptions);
                 if (dto == null) return null;
-                return AuthorMapper.ToAuthorWorks(dto, page, limit) as T;
+                return _authorMapper.ToAuthorWorks(dto, page, limit) as T;
             }
 
             return await response.Content.ReadFromJsonAsync<T>(_jsonOptions);

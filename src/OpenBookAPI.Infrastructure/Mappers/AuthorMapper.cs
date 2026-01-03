@@ -1,14 +1,20 @@
+using Microsoft.Extensions.Options;
 using OpenBookAPI.Application.Models;
+using OpenBookAPI.Infrastructure.Configuration;
 using OpenBookAPI.Infrastructure.Dtos;
 
 namespace OpenBookAPI.Infrastructure.Mappers;
 
-public static class AuthorMapper
+public class AuthorMapper
 {
-    private const string PhotoBaseUrl = "https://covers.openlibrary.org/a/id";
-    private const string CoverBaseUrl = "https://covers.openlibrary.org/b/id";
+    private readonly OpenLibraryOptions _options;
 
-    public static AuthorDetail ToAuthorDetail(OpenLibraryAuthorDto dto)
+    public AuthorMapper(IOptions<OpenLibraryOptions> options)
+    {
+        _options = options.Value;
+    }
+
+    public AuthorDetail ToAuthorDetail(OpenLibraryAuthorDto dto)
     {
         return new AuthorDetail(
             Key: ExtractKey(dto.Key),
@@ -17,14 +23,14 @@ public static class AuthorMapper
             BirthDate: dto.BirthDate,
             DeathDate: dto.DeathDate,
             PhotoUrl: dto.Photos?.FirstOrDefault() is int photoId
-                ? $"{PhotoBaseUrl}/{photoId}-L.jpg"
+                ? $"{_options.PhotoBaseUrl}/{photoId}-{_options.CoverSize.Detail}.jpg"
                 : null,
             AlternateNames: dto.AlternateNames ?? new List<string>(),
             Links: dto.Links?.Select(l => l.Url).ToList() ?? new List<string>()
         );
     }
 
-    public static AuthorSearchResult ToAuthorSearchResult(OpenLibraryAuthorSearchDto dto, int page, int limit)
+    public AuthorSearchResult ToAuthorSearchResult(OpenLibraryAuthorSearchDto dto, int page, int limit)
     {
         var totalPages = limit > 0 ? (int)Math.Ceiling((double)dto.NumFound / limit) : 0;
 
@@ -39,7 +45,7 @@ public static class AuthorMapper
         );
     }
 
-    public static AuthorSummary ToAuthorSummary(OpenLibraryAuthorSearchDocDto dto)
+    public AuthorSummary ToAuthorSummary(OpenLibraryAuthorSearchDocDto dto)
     {
         return new AuthorSummary(
             Key: ExtractKey(dto.Key),
@@ -48,15 +54,14 @@ public static class AuthorMapper
             DeathDate: dto.DeathDate,
             TopWork: dto.TopWork,
             WorkCount: dto.WorkCount,
-            PhotoUrl: null // Search results don't include photo IDs
+            PhotoUrl: null
         );
     }
 
-    public static AuthorWorks ToAuthorWorks(OpenLibraryAuthorWorksDto dto, int page, int limit)
+    public AuthorWorks ToAuthorWorks(OpenLibraryAuthorWorksDto dto, int page, int limit)
     {
         var totalPages = limit > 0 ? (int)Math.Ceiling((double)dto.Size / limit) : 0;
 
-        // Calculate pagination for entries
         var skip = (page - 1) * limit;
         var pagedEntries = dto.Entries.Skip(skip).Take(limit).ToList();
 
@@ -71,12 +76,11 @@ public static class AuthorMapper
         );
     }
 
-    public static WorkSummary ToWorkSummary(OpenLibraryWorkEntryDto dto)
+    public WorkSummary ToWorkSummary(OpenLibraryWorkEntryDto dto)
     {
         int? firstPublishYear = null;
         if (!string.IsNullOrEmpty(dto.FirstPublishDate))
         {
-            // Try to extract year from various date formats
             var yearMatch = System.Text.RegularExpressions.Regex.Match(dto.FirstPublishDate, @"\d{4}");
             if (yearMatch.Success && int.TryParse(yearMatch.Value, out var year))
             {
@@ -89,7 +93,7 @@ public static class AuthorMapper
             Title: dto.Title,
             FirstPublishYear: firstPublishYear,
             CoverUrl: dto.Covers?.FirstOrDefault() is int coverId
-                ? $"{CoverBaseUrl}/{coverId}-M.jpg"
+                ? $"{_options.CoverBaseUrl}/{coverId}-{_options.CoverSize.Thumbnail}.jpg"
                 : null,
             Subjects: dto.Subjects?.Take(5).ToList() ?? new List<string>()
         );

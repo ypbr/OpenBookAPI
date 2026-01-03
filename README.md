@@ -208,15 +208,43 @@ OpenBookAPI/
 
 ## Configuration
 
-The API uses the following default configuration in `appsettings.json`:
+The API uses the following configuration in `appsettings.json`:
 
 ```json
 {
   "OpenLibrary": {
-    "BaseUrl": "https://openlibrary.org"
+    "BaseUrl": "https://openlibrary.org",
+    "CoverBaseUrl": "https://covers.openlibrary.org/b/id",
+    "PhotoBaseUrl": "https://covers.openlibrary.org/a/id",
+    "UserAgent": "OpenBookAPI/1.0 (https://github.com/ypbr/OpenBookAPI; ypbr@outlook.com)",
+    "CoverSize": {
+      "Thumbnail": "M",
+      "Detail": "L"
+    },
+    "RateLimit": {
+      "TokenLimit": 5,
+      "TokensPerPeriod": 3,
+      "ReplenishmentPeriodSeconds": 1,
+      "QueueLimit": 100
+    }
   }
 }
 ```
+
+### Configuration Options
+
+| Option | Description | Default |
+|--------|-------------|---------|
+| `BaseUrl` | OpenLibrary API base URL | `https://openlibrary.org` |
+| `CoverBaseUrl` | Book cover images URL | `https://covers.openlibrary.org/b/id` |
+| `PhotoBaseUrl` | Author photo images URL | `https://covers.openlibrary.org/a/id` |
+| `UserAgent` | User-Agent header for API requests | `OpenBookAPI/1.0` |
+| `CoverSize.Thumbnail` | Image size for list views (S/M/L) | `M` |
+| `CoverSize.Detail` | Image size for detail views (S/M/L) | `L` |
+| `RateLimit.TokenLimit` | Burst capacity | `5` |
+| `RateLimit.TokensPerPeriod` | Tokens per second | `3` |
+| `RateLimit.ReplenishmentPeriodSeconds` | Token refresh period | `1` |
+| `RateLimit.QueueLimit` | Max queued requests | `100` |
 
 ## Rate Limiting
 
@@ -232,6 +260,8 @@ The rate limiter uses a **Token Bucket** algorithm:
 - Replenishes 3 tokens per second
 - Queues up to 100 requests when limit is reached
 - Returns HTTP 429 (Too Many Requests) if queue is full
+
+All rate limit settings are configurable via `appsettings.json`.
 
 ## Testing with REST Client
 

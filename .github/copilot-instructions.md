@@ -93,6 +93,33 @@ Use `IHttpClientFactory` with named client "OpenLibrary". Configure base address
 - Use global exception middleware in Api layer
 - Return `ProblemDetails` for all error responses
 
+### Configuration (Options Pattern)
+
+All settings are configurable via `appsettings.json`:
+
+```json
+{
+  "OpenLibrary": {
+    "BaseUrl": "https://openlibrary.org",
+    "CoverBaseUrl": "https://covers.openlibrary.org/b/id",
+    "PhotoBaseUrl": "https://covers.openlibrary.org/a/id",
+    "UserAgent": "OpenBookAPI/1.0",
+    "CoverSize": {
+      "Thumbnail": "M",
+      "Detail": "L"
+    },
+    "RateLimit": {
+      "TokenLimit": 5,
+      "TokensPerPeriod": 3,
+      "ReplenishmentPeriodSeconds": 1,
+      "QueueLimit": 100
+    }
+  }
+}
+```
+
+Use `IOptions<OpenLibraryOptions>` pattern for accessing configuration.
+
 ## Project Structure
 
 ```
@@ -107,6 +134,7 @@ src/
 │   ├── Models/
 │   └── Extensions/
 └── OpenBookAPI.Infrastructure/
+    ├── Configuration/
     ├── Http/
     ├── Dtos/
     ├── Mappers/
@@ -137,5 +165,8 @@ API runs at: `http://localhost:5041`
 ```http
 GET /api/books/search?query=tolkien&page=1&limit=5
 GET /api/books/{workKey}
+GET /api/books/isbn/{isbn}
+GET /api/authors/search?query=tolkien&page=1&limit=5
 GET /api/authors/{authorKey}
+GET /api/authors/{authorKey}/works?page=1&limit=10
 ```

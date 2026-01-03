@@ -1,13 +1,20 @@
+using Microsoft.Extensions.Options;
 using OpenBookAPI.Application.Models;
+using OpenBookAPI.Infrastructure.Configuration;
 using OpenBookAPI.Infrastructure.Dtos;
 
 namespace OpenBookAPI.Infrastructure.Mappers;
 
-public static class BookMapper
+public class BookMapper
 {
-    private const string CoverBaseUrl = "https://covers.openlibrary.org/b/id";
+    private readonly OpenLibraryOptions _options;
 
-    public static BookSearchResult ToBookSearchResult(OpenLibrarySearchDto dto, int page, int limit)
+    public BookMapper(IOptions<OpenLibraryOptions> options)
+    {
+        _options = options.Value;
+    }
+
+    public BookSearchResult ToBookSearchResult(OpenLibrarySearchDto dto, int page, int limit)
     {
         var totalPages = (int)Math.Ceiling((double)dto.NumFound / limit);
 
@@ -22,18 +29,20 @@ public static class BookMapper
         );
     }
 
-    public static BookSummary ToBookSummary(OpenLibrarySearchDocDto dto)
+    public BookSummary ToBookSummary(OpenLibrarySearchDocDto dto)
     {
         return new BookSummary(
             Key: ExtractKey(dto.Key),
             Title: dto.Title,
             Authors: dto.AuthorName ?? new List<string>(),
             FirstPublishYear: dto.FirstPublishYear,
-            CoverUrl: dto.CoverId.HasValue ? $"{CoverBaseUrl}/{dto.CoverId}-M.jpg" : null
+            CoverUrl: dto.CoverId.HasValue
+                ? $"{_options.CoverBaseUrl}/{dto.CoverId}-{_options.CoverSize.Thumbnail}.jpg"
+                : null
         );
     }
 
-    public static BookDetail ToBookDetail(OpenLibraryWorkDto dto)
+    public BookDetail ToBookDetail(OpenLibraryWorkDto dto)
     {
         return new BookDetail(
             Key: ExtractKey(dto.Key),
@@ -45,16 +54,35 @@ public static class BookMapper
                 Name: null
             )).ToList() ?? new List<AuthorReference>(),
             CoverUrl: dto.Covers?.FirstOrDefault() is int coverId
-                ? $"{CoverBaseUrl}/{coverId}-L.jpg"
+                ? $"{_options.CoverBaseUrl}/{coverId}-{_options.CoverSize.Detail}.jpg"
                 : null,
             Created: ParseDateTime(dto.Created?.Value),
             LastModified: ParseDateTime(dto.LastModified?.Value)
         );
     }
 
+    public BookEdition ToBookEdition(OpenLibraryEditionDto dto)
+    {
+        return new BookEdition(
+            Key: ExtractKey(dto.Key),
+            Title: dto.Title,
+            Isbn10: dto.Isbn10?.FirstOrDefault(),
+            Isbn13: dto.Isbn13?.FirstOrDefault(),
+            Authors: new List<string>(),
+            Publishers: dto.Publishers ?? new List<string>(),
+            PublishDate: dto.PublishDate,
+            NumberOfPages: dto.NumberOfPages,
+            CoverUrl: dto.Covers?.FirstOrDefault() is int coverId
+                ? $"{_options.CoverBaseUrl}/{coverId}-{_options.CoverSize.Detail}.jpg"
+                : null,
+            WorkKey: dto.Works?.FirstOrDefault()?.Key is string workKey
+                ? ExtractKey(workKey)
+                : null
+        );
+    }
+
     private static string ExtractKey(string fullKey)
     {
-        // "/works/OL123W" -> "OL123W"
         return fullKey.Split('/').LastOrDefault() ?? fullKey;
     }
 
@@ -64,7 +92,6 @@ public static class BookMapper
 
         if (description is string str) return str;
 
-        // OpenLibrary sometimes returns { "type": "/type/text", "value": "..." }
         if (description is System.Text.Json.JsonElement element)
         {
             if (element.ValueKind == System.Text.Json.JsonValueKind.String)
@@ -75,26 +102,6 @@ public static class BookMapper
         }
 
         return description.ToString();
-    }
-
-    public static BookEdition ToBookEdition(OpenLibraryEditionDto dto)
-    {
-        return new BookEdition(
-            Key: ExtractKey(dto.Key),
-            Title: dto.Title,
-            Isbn10: dto.Isbn10?.FirstOrDefault(),
-            Isbn13: dto.Isbn13?.FirstOrDefault(),
-            Authors: new List<string>(), // Authors need separate lookup
-            Publishers: dto.Publishers ?? new List<string>(),
-            PublishDate: dto.PublishDate,
-            NumberOfPages: dto.NumberOfPages,
-            CoverUrl: dto.Covers?.FirstOrDefault() is int coverId
-                ? $"{CoverBaseUrl}/{coverId}-L.jpg"
-                : null,
-            WorkKey: dto.Works?.FirstOrDefault()?.Key is string workKey
-                ? ExtractKey(workKey)
-                : null
-        );
     }
 
     private static DateTime? ParseDateTime(string? value)
