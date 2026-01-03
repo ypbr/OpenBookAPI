@@ -218,6 +218,21 @@ The API uses the following default configuration in `appsettings.json`:
 }
 ```
 
+## Rate Limiting
+
+This API implements client-side rate limiting to comply with [OpenLibrary's API limits](https://github.com/internetarchive/openlibrary/blob/master/docker/nginx.conf):
+
+| Limit Type | Rate | Description |
+|------------|------|-------------|
+| API Limit | 180 requests/minute | 3 requests per second |
+| Burst | 5 requests | Initial burst capacity |
+
+The rate limiter uses a **Token Bucket** algorithm:
+- Allows burst of up to 5 requests
+- Replenishes 3 tokens per second
+- Queues up to 100 requests when limit is reached
+- Returns HTTP 429 (Too Many Requests) if queue is full
+
 ## Testing with REST Client
 
 You can use the included `requests.http` file with the [REST Client](https://marketplace.visualstudio.com/items?itemName=humao.rest-client) VS Code extension for quick API testing.
