@@ -34,17 +34,31 @@ public class BooksController : ControllerBase
     }
 
     /// <summary>
-    /// Get book details by OpenLibrary work key
+    /// Get book details by OpenLibrary book key (editions)
     /// </summary>
-    [HttpGet("{workKey}")]
-    public async Task<IActionResult> GetBook(string workKey)
+    [HttpGet("{bookKey}")]
+    public async Task<IActionResult> GetBook(string bookKey)
     {
-        var book = await _bookService.GetBookByKeyAsync(workKey);
+        var book = await _bookService.GetBookByKeyAsync(bookKey);
 
         if (book == null)
-            return NotFound(new { error = $"Book with key '{workKey}' not found" });
+            return NotFound(new { error = $"Book with key '{bookKey}' not found" });
 
         return Ok(book);
+    }
+
+    /// <summary>
+    /// Get work details by OpenLibrary work key
+    /// </summary>
+    [HttpGet("works/{workKey}")]
+    public async Task<IActionResult> GetWork(string workKey)
+    {
+        var work = await _bookService.GetWorkByKeyAsync(workKey);
+
+        if (work == null)
+            return NotFound(new { error = $"Work with key '{workKey}' not found" });
+
+        return Ok(work);
     }
 
     /// <summary>

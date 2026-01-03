@@ -26,9 +26,15 @@ public class BookService : IBookService
         );
     }
 
-    public async Task<BookDetail?> GetBookByKeyAsync(string workKey)
+    public async Task<BookDetail?> GetBookByKeyAsync(string bookKey)
     {
-        var endpoint = $"/books/{workKey}.json";
+        var endpoint = $"/books/{bookKey}.json";
+        return await _openLibraryClient.GetAsync<BookDetail>(endpoint);
+    }
+
+    public async Task<BookDetail?> GetWorkByKeyAsync(string workKey)
+    {
+        var endpoint = $"/works/{workKey}.json";
         return await _openLibraryClient.GetAsync<BookDetail>(endpoint);
     }
 

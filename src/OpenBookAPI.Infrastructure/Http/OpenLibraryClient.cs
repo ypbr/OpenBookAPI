@@ -95,7 +95,7 @@ public class OpenLibraryClient : IOpenLibraryClient
         try
         {
             var offset = (page - 1) * limit;
-            var searchUrl = $"/search.json?q={Uri.EscapeDataString(query)}&offset={offset}&limit={limit}";
+            var searchUrl = $"/search.json?q={Uri.EscapeDataString(query)}&offset={offset}&limit={limit}&fields=*";
 
             var response = await _httpClient.GetAsync(searchUrl);
 
