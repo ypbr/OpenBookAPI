@@ -1,0 +1,42 @@
+### OpenBookAPI Test Requests
+### Use with REST Client extension in VS Code
+
+@baseUrl = http://localhost:5041/api
+
+### =====================
+### BOOKS
+### =====================
+
+### Search Books
+GET {{baseUrl}}/books/search?query=lord+of+the+rings&page=1&limit=5
+
+### Get Book by Work Key
+GET {{baseUrl}}/books/OL27495W
+
+### Get Book by ISBN-13
+GET {{baseUrl}}/books/isbn/9780618640157
+
+### Get Book by ISBN-10
+GET {{baseUrl}}/books/isbn/0618640150
+
+### =====================
+### AUTHORS
+### =====================
+
+### Search Authors
+GET {{baseUrl}}/authors/search?query=tolkien&page=1&limit=5
+
+### Get Author Details
+GET {{baseUrl}}/authors/OL26320A
+
+### Get Author Works (J.R.R. Tolkien)
+GET {{baseUrl}}/authors/OL26320A/works?page=1&limit=10
+
+### Search Turkish Authors
+GET {{baseUrl}}/authors/search?query=orhan+pamuk&limit=5
+
+### Get Orhan Pamuk's Works
+GET {{baseUrl}}/authors/OL25895A/works?limit=10
+
+### Get Another Book
+GET {{baseUrl}}/books/OL45804W
