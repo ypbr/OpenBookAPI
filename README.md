@@ -5,11 +5,14 @@ A .NET Core REST API that proxies and enriches data from [OpenLibrary.org](https
 ## Features
 
 - 📚 **Book Search** - Search books by title, author, or keyword with pagination
-- 📖 **Book Details** - Get detailed information about a specific book
+- 📖 **Book Details** - Get detailed information about a specific book (editions)
+- 📕 **Work Details** - Get work information from OpenLibrary works endpoint
 - 🔢 **ISBN Lookup** - Find books by ISBN-10 or ISBN-13
+- ⭐ **Ratings** - Get average ratings and rating distribution for works
+- 📊 **Bookshelves** - See how many users have a book on their reading lists
 - ✍️ **Author Search** - Search authors by name with pagination
 - 👤 **Author Details** - Get detailed author information
-- 📕 **Author Works** - List all works by a specific author
+- 📚 **Author Works** - List all works by a specific author
 
 ## Prerequisites
 
@@ -39,8 +42,11 @@ The API will be available at: `http://localhost:5041`
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | GET | `/api/books/search?query={q}&page={p}&limit={l}` | Search books |
-| GET | `/api/books/{workKey}` | Get book details by work key |
+| GET | `/api/books/{bookKey}` | Get book edition details |
+| GET | `/api/books/works/{workKey}` | Get work details |
 | GET | `/api/books/isbn/{isbn}` | Get book by ISBN (10 or 13 digits) |
+| GET | `/api/books/{workKey}/bookshelves` | Get bookshelf statistics |
+| GET | `/api/books/{workKey}/ratings` | Get ratings and distribution |
 
 ### Authors
 
@@ -124,6 +130,46 @@ curl "http://localhost:5041/api/authors/OL26320A"
 ```bash
 # Get all works by J.R.R. Tolkien
 curl "http://localhost:5041/api/authors/OL26320A/works?page=1&limit=10"
+```
+
+### Get Bookshelves
+
+```bash
+# Get bookshelf statistics (want to read, currently reading, already read)
+curl "http://localhost:5041/api/books/OL18020194W/bookshelves"
+```
+
+Response:
+```json
+{
+  "wantToRead": 39763,
+  "currentlyReading": 2554,
+  "alreadyRead": 1315,
+  "total": 43632
+}
+```
+
+### Get Ratings
+
+```bash
+# Get ratings and distribution for a work
+curl "http://localhost:5041/api/books/OL18020194W/ratings"
+```
+
+Response:
+```json
+{
+  "average": 4.208,
+  "count": 1042,
+  "sortable": 4.134,
+  "distribution": {
+    "oneStar": 110,
+    "twoStars": 35,
+    "threeStars": 64,
+    "fourStars": 152,
+    "fiveStars": 681
+  }
+}
 ```
 
 ## Architecture
@@ -287,8 +333,11 @@ This API uses the following OpenLibrary endpoints:
 | Endpoint | Usage |
 |----------|-------|
 | `https://openlibrary.org/search.json` | Book search |
-| `https://openlibrary.org/works/{olid}.json` | Book details |
+| `https://openlibrary.org/books/{olid}.json` | Book edition details |
+| `https://openlibrary.org/works/{olid}.json` | Work details |
 | `https://openlibrary.org/isbn/{isbn}.json` | ISBN lookup |
+| `https://openlibrary.org/works/{olid}/bookshelves.json` | Bookshelf statistics |
+| `https://openlibrary.org/works/{olid}/ratings.json` | Ratings and distribution |
 | `https://openlibrary.org/search/authors.json` | Author search |
 | `https://openlibrary.org/authors/{olid}.json` | Author details |
 | `https://openlibrary.org/authors/{olid}/works.json` | Author works |
