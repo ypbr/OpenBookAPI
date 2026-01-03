@@ -28,7 +28,7 @@ public class BookService : IBookService
 
     public async Task<BookDetail?> GetBookByKeyAsync(string workKey)
     {
-        var endpoint = $"/works/{workKey}.json";
+        var endpoint = $"/books/{workKey}.json";
         return await _openLibraryClient.GetAsync<BookDetail>(endpoint);
     }
 
@@ -38,5 +38,17 @@ public class BookService : IBookService
         var cleanIsbn = isbn.Replace("-", "").Replace(" ", "");
         var endpoint = $"/isbn/{cleanIsbn}.json";
         return await _openLibraryClient.GetAsync<BookEdition>(endpoint);
+    }
+
+    public async Task<BookshelvesInfo?> GetBookshelvesAsync(string workKey)
+    {
+        var endpoint = $"/works/{workKey}/bookshelves.json";
+        return await _openLibraryClient.GetAsync<BookshelvesInfo>(endpoint);
+    }
+
+    public async Task<RatingsInfo?> GetRatingsAsync(string workKey)
+    {
+        var endpoint = $"/works/{workKey}/ratings.json";
+        return await _openLibraryClient.GetAsync<RatingsInfo>(endpoint);
     }
 }

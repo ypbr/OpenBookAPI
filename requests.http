@@ -20,6 +20,22 @@ GET {{baseUrl}}/books/isbn/9780618640157
 GET {{baseUrl}}/books/isbn/0618640150
 
 ### =====================
+### BOOKSHELVES & RATINGS
+### =====================
+
+### Get Bookshelves (want to read, currently reading, already read counts)
+GET {{baseUrl}}/books/OL18020194W/bookshelves
+
+### Get Ratings (average rating and distribution)
+GET {{baseUrl}}/books/OL18020194W/ratings
+
+### Get Bookshelves for Lord of the Rings
+GET {{baseUrl}}/books/OL27448W/bookshelves
+
+### Get Ratings for Lord of the Rings
+GET {{baseUrl}}/books/OL27448W/ratings
+
+### =====================
 ### AUTHORS
 ### =====================
 

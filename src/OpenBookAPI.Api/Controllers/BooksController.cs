@@ -63,4 +63,32 @@ public class BooksController : ControllerBase
 
         return Ok(edition);
     }
+
+    /// <summary>
+    /// Get bookshelves statistics for a work (want to read, currently reading, already read counts)
+    /// </summary>
+    [HttpGet("{workKey}/bookshelves")]
+    public async Task<IActionResult> GetBookshelves(string workKey)
+    {
+        var bookshelves = await _bookService.GetBookshelvesAsync(workKey);
+
+        if (bookshelves == null)
+            return NotFound(new { error = $"Bookshelves for work '{workKey}' not found" });
+
+        return Ok(bookshelves);
+    }
+
+    /// <summary>
+    /// Get ratings for a work (average rating and distribution)
+    /// </summary>
+    [HttpGet("{workKey}/ratings")]
+    public async Task<IActionResult> GetRatings(string workKey)
+    {
+        var ratings = await _bookService.GetRatingsAsync(workKey);
+
+        if (ratings == null)
+            return NotFound(new { error = $"Ratings for work '{workKey}' not found" });
+
+        return Ok(ratings);
+    }
 }

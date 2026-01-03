@@ -81,6 +81,33 @@ public class BookMapper
         );
     }
 
+    public BookshelvesInfo ToBookshelvesInfo(OpenLibraryBookshelvesDto dto)
+    {
+        var counts = dto.Counts;
+        return new BookshelvesInfo(
+            WantToRead: counts.WantToRead,
+            CurrentlyReading: counts.CurrentlyReading,
+            AlreadyRead: counts.AlreadyRead,
+            Total: counts.WantToRead + counts.CurrentlyReading + counts.AlreadyRead
+        );
+    }
+
+    public RatingsInfo ToRatingsInfo(OpenLibraryRatingsDto dto)
+    {
+        return new RatingsInfo(
+            Average: dto.Summary.Average,
+            Count: dto.Summary.Count,
+            Sortable: dto.Summary.Sortable,
+            Distribution: new RatingDistribution(
+                OneStar: dto.Counts.OneStar,
+                TwoStars: dto.Counts.TwoStars,
+                ThreeStars: dto.Counts.ThreeStars,
+                FourStars: dto.Counts.FourStars,
+                FiveStars: dto.Counts.FiveStars
+            )
+        );
+    }
+
     private static string ExtractKey(string fullKey)
     {
         return fullKey.Split('/').LastOrDefault() ?? fullKey;

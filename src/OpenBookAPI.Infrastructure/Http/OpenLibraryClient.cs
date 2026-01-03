@@ -68,6 +68,20 @@ public class OpenLibraryClient : IOpenLibraryClient
                 return _bookMapper.ToBookEdition(dto) as T;
             }
 
+            if (typeof(T) == typeof(BookshelvesInfo))
+            {
+                var dto = await response.Content.ReadFromJsonAsync<OpenLibraryBookshelvesDto>(_jsonOptions);
+                if (dto == null) return null;
+                return _bookMapper.ToBookshelvesInfo(dto) as T;
+            }
+
+            if (typeof(T) == typeof(RatingsInfo))
+            {
+                var dto = await response.Content.ReadFromJsonAsync<OpenLibraryRatingsDto>(_jsonOptions);
+                if (dto == null) return null;
+                return _bookMapper.ToRatingsInfo(dto) as T;
+            }
+
             return await response.Content.ReadFromJsonAsync<T>(_jsonOptions);
         }
         catch (HttpRequestException ex)
