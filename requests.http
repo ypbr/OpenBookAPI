@@ -3,50 +3,107 @@
 
 @baseUrl = http://localhost:5041/api
 
+### API Client credentials (required only for login/refresh)
+@clientId = openbook-mobile-ios
+@clientSecret = ios-secret-key-change-in-production
+
+### JWT Token (obtained after login - copy from login response)
+@accessToken = YOUR_ACCESS_TOKEN_HERE
+
 ### =====================
-### BOOKS
+### AUTHENTICATION
+### =====================
+
+### Login (get JWT tokens) - Requires Client ID/Secret
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+X-Client-Id: {{clientId}}
+X-Client-Secret: {{clientSecret}}
+
+{
+    "username": "demo",
+    "password": "demo123"
+}
+
+### Refresh Token - Requires Client ID/Secret
+POST {{baseUrl}}/auth/refresh
+Content-Type: application/json
+X-Client-Id: {{clientId}}
+X-Client-Secret: {{clientSecret}}
+
+{
+    "refreshToken": "YOUR_REFRESH_TOKEN_HERE"
+}
+
+### Get Current User Info - Only Bearer Token needed
+GET {{baseUrl}}/auth/me
+Authorization: Bearer {{accessToken}}
+
+### Logout - Only Bearer Token needed
+POST {{baseUrl}}/auth/logout
+Content-Type: application/json
+Authorization: Bearer {{accessToken}}
+
+{
+    "refreshToken": "YOUR_REFRESH_TOKEN_HERE"
+}
+
+### =====================
+### BOOKS (Only Bearer Token needed)
 ### =====================
 
 ### Search Books
 GET {{baseUrl}}/books/search?query=lord+of+the+rings&page=1&limit=5
+Authorization: Bearer {{accessToken}}
 
 ### Get Book by Work Key
 GET {{baseUrl}}/books/OL27495W
+Authorization: Bearer {{accessToken}}
 
 ### Get Book by ISBN-13
 GET {{baseUrl}}/books/isbn/9780618640157
+Authorization: Bearer {{accessToken}}
 
 ### Get Book by ISBN-10
 GET {{baseUrl}}/books/isbn/0618640150
+Authorization: Bearer {{accessToken}}
 
 ### =====================
-### BOOKSHELVES & RATINGS
+### BOOKSHELVES & RATINGS (Only Bearer Token needed)
 ### =====================
 
 ### Get Bookshelves (want to read, currently reading, already read counts)
 GET {{baseUrl}}/books/OL18020194W/bookshelves
+Authorization: Bearer {{accessToken}}
 
 ### Get Ratings (average rating and distribution)
 GET {{baseUrl}}/books/OL18020194W/ratings
+Authorization: Bearer {{accessToken}}
 
 ### Get Bookshelves for Lord of the Rings
 GET {{baseUrl}}/books/OL27448W/bookshelves
+Authorization: Bearer {{accessToken}}
 
 ### Get Ratings for Lord of the Rings
 GET {{baseUrl}}/books/OL27448W/ratings
+Authorization: Bearer {{accessToken}}
 
 ### =====================
-### AUTHORS
+### AUTHORS (Only Bearer Token needed)
 ### =====================
 
 ### Search Authors
 GET {{baseUrl}}/authors/search?query=tolkien&page=1&limit=5
+Authorization: Bearer {{accessToken}}
 
 ### Get Author Details
 GET {{baseUrl}}/authors/OL26320A
+Authorization: Bearer {{accessToken}}
 
 ### Get Author Works (J.R.R. Tolkien)
 GET {{baseUrl}}/authors/OL26320A/works?page=1&limit=10
+Authorization: Bearer {{accessToken}}
+Authorization: Bearer {{accessToken}}
 
 ### Search Turkish Authors
 GET {{baseUrl}}/authors/search?query=orhan+pamuk&limit=5

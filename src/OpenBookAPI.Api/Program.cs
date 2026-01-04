@@ -1,3 +1,4 @@
+using OpenBookAPI.Api.Extensions;
 using OpenBookAPI.Api.Middleware;
 using OpenBookAPI.Application.Extensions;
 using OpenBookAPI.Infrastructure.Extensions;
@@ -11,6 +12,9 @@ builder.Services.AddOpenApi();
 // Register Application & Infrastructure services
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);
+
+// Add JWT Authentication
+builder.Services.AddJwtAuthentication(builder.Configuration);
 
 // Configure HSTS options for production
 builder.Services.AddHsts(options =>
@@ -45,7 +49,14 @@ else
 }
 
 app.UseHttpsRedirection();
+
+// API Client validation - ensures only registered mobile apps can access
+app.UseApiClientValidation();
+
+// Authentication & Authorization
+app.UseAuthentication();
 app.UseAuthorization();
+
 app.MapControllers();
 
 app.Run();

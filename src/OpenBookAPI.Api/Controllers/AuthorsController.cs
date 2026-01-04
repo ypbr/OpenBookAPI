@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OpenBookAPI.Application.Interfaces;
 
@@ -5,6 +6,7 @@ namespace OpenBookAPI.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class AuthorsController : ControllerBase
 {
     private readonly IAuthorService _authorService;
