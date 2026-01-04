@@ -23,3 +23,5 @@ Thumbs.db
 
 # Test results
 TestResults/
+# GitHub Copilot
+.github/copilot-instructions.md
