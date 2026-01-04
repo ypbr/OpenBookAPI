@@ -8,11 +8,16 @@ public class ExceptionHandlingMiddleware
 {
     private readonly RequestDelegate _next;
     private readonly ILogger<ExceptionHandlingMiddleware> _logger;
+    private readonly IHostEnvironment _environment;
 
-    public ExceptionHandlingMiddleware(RequestDelegate next, ILogger<ExceptionHandlingMiddleware> logger)
+    public ExceptionHandlingMiddleware(
+        RequestDelegate next,
+        ILogger<ExceptionHandlingMiddleware> logger,
+        IHostEnvironment environment)
     {
         _next = next;
         _logger = logger;
+        _environment = environment;
     }
 
     public async Task InvokeAsync(HttpContext context)
@@ -24,16 +29,16 @@ public class ExceptionHandlingMiddleware
         catch (OpenLibraryException ex)
         {
             _logger.LogWarning(ex, "OpenLibrary API error: {Message}", ex.Message);
-            await HandleExceptionAsync(context, ex);
+            await HandleExceptionAsync(context, ex, _environment.IsDevelopment());
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Unhandled exception: {Message}", ex.Message);
-            await HandleExceptionAsync(context, ex);
+            await HandleExceptionAsync(context, ex, _environment.IsDevelopment());
         }
     }
 
-    private static async Task HandleExceptionAsync(HttpContext context, Exception exception)
+    private static async Task HandleExceptionAsync(HttpContext context, Exception exception, bool isDevelopment)
     {
         context.Response.ContentType = "application/problem+json";
 
@@ -46,12 +51,22 @@ public class ExceptionHandlingMiddleware
 
         context.Response.StatusCode = statusCode;
 
+        // Hide detailed error messages in production for security
+        var detailMessage = isDevelopment
+            ? exception.Message
+            : exception switch
+            {
+                OpenLibraryException => exception.Message, // Safe to show - external API error
+                ArgumentException => exception.Message,     // Safe to show - validation error
+                _ => "An unexpected error occurred. Please try again later."
+            };
+
         var problemDetails = new
         {
             type = $"https://httpstatuses.com/{statusCode}",
             title,
             status = statusCode,
-            detail = exception.Message,
+            detail = detailMessage,
             instance = context.Request.Path.Value
         };
 

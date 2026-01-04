@@ -12,12 +12,34 @@ builder.Services.AddOpenApi();
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);
 
+// Configure HSTS options for production
+builder.Services.AddHsts(options =>
+{
+    options.Preload = true;
+    options.IncludeSubDomains = true;
+    options.MaxAge = TimeSpan.FromDays(365);
+});
+
+// Configure Kestrel to hide server header
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.AddServerHeader = false;
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline
+// Security headers should be added early in the pipeline
+app.UseSecurityHeaders();
+
 app.UseExceptionHandling();
 
-if (app.Environment.IsDevelopment())
+// HSTS should be used in production (enforces HTTPS)
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHsts();
+}
+else
 {
     app.MapOpenApi();
 }
