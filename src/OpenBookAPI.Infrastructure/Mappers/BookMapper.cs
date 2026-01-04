@@ -49,13 +49,21 @@ public class BookMapper
             Title: dto.Title,
             Description: ExtractDescription(dto.Description),
             Subjects: dto.Subjects ?? new List<string>(),
+            SubjectPlaces: dto.SubjectPlaces ?? new List<string>(),
+            SubjectPeople: dto.SubjectPeople ?? new List<string>(),
+            SubjectTimes: dto.SubjectTimes ?? new List<string>(),
             Authors: dto.Authors?.Select(a => new AuthorReference(
                 Key: ExtractKey(a.Author?.Key ?? string.Empty),
                 Name: null
             )).ToList() ?? new List<AuthorReference>(),
-            CoverUrl: dto.Covers?.FirstOrDefault() is int coverId
+            CoverIds: dto.Covers?.Where(c => c > 0).ToList() ?? new List<int>(),
+            CoverUrl: dto.Covers?.FirstOrDefault(c => c > 0) is int coverId
                 ? $"{_options.CoverBaseUrl}/{coverId}-{_options.CoverSize.Detail}.jpg"
                 : null,
+            Type: ExtractKey(dto.Type?.Key ?? string.Empty),
+            Location: dto.Location,
+            LatestRevision: dto.LatestRevision,
+            Revision: dto.Revision,
             Created: ParseDateTime(dto.Created?.Value),
             LastModified: ParseDateTime(dto.LastModified?.Value)
         );
@@ -66,18 +74,38 @@ public class BookMapper
         return new BookEdition(
             Key: ExtractKey(dto.Key),
             Title: dto.Title,
-            Isbn10: dto.Isbn10?.FirstOrDefault(),
-            Isbn13: dto.Isbn13?.FirstOrDefault(),
-            Authors: new List<string>(),
+            Isbn10: dto.Isbn10 ?? new List<string>(),
+            Isbn13: dto.Isbn13 ?? new List<string>(),
+            AuthorKeys: dto.Authors?.Select(a => ExtractKey(a.Key)).ToList() ?? new List<string>(),
             Publishers: dto.Publishers ?? new List<string>(),
             PublishDate: dto.PublishDate,
             NumberOfPages: dto.NumberOfPages,
-            CoverUrl: dto.Covers?.FirstOrDefault() is int coverId
+            CoverIds: dto.Covers?.Where(c => c > 0).ToList() ?? new List<int>(),
+            CoverUrl: dto.Covers?.FirstOrDefault(c => c > 0) is int coverId
                 ? $"{_options.CoverBaseUrl}/{coverId}-{_options.CoverSize.Detail}.jpg"
                 : null,
             WorkKey: dto.Works?.FirstOrDefault()?.Key is string workKey
                 ? ExtractKey(workKey)
-                : null
+                : null,
+            Identifiers: new EditionIdentifiers(
+                Goodreads: dto.Identifiers?.Goodreads ?? new List<string>(),
+                LibraryThing: dto.Identifiers?.LibraryThing ?? new List<string>(),
+                Amazon: dto.Identifiers?.Amazon ?? new List<string>(),
+                Google: dto.Identifiers?.Google ?? new List<string>(),
+                Wikidata: dto.Identifiers?.Wikidata ?? new List<string>()
+            ),
+            Contributions: dto.Contributions ?? new List<string>(),
+            Languages: dto.Languages?.Select(l => ExtractKey(l.Key)).ToList() ?? new List<string>(),
+            SourceRecords: dto.SourceRecords ?? new List<string>(),
+            LocalIds: dto.LocalIds ?? new List<string>(),
+            Type: dto.Type != null ? ExtractKey(dto.Type.Key) : null,
+            FirstSentence: dto.FirstSentence?.Value,
+            Classifications: dto.Classifications ?? new Dictionary<string, List<string>>(),
+            InternetArchiveId: dto.Ocaid,
+            LatestRevision: dto.LatestRevision,
+            Revision: dto.Revision,
+            Created: ParseDateTime(dto.Created?.Value),
+            LastModified: ParseDateTime(dto.LastModified?.Value)
         );
     }
 

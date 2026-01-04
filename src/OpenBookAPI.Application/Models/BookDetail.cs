@@ -5,8 +5,16 @@ public record BookDetail(
     string Title,
     string? Description,
     List<string> Subjects,
+    List<string> SubjectPlaces,
+    List<string> SubjectPeople,
+    List<string> SubjectTimes,
     List<AuthorReference> Authors,
+    List<int> CoverIds,
     string? CoverUrl,
+    string? Type,
+    string? Location,
+    int? LatestRevision,
+    int? Revision,
     DateTime? Created,
     DateTime? LastModified
 );
