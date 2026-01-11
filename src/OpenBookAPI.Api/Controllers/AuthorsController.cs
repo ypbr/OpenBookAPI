@@ -6,7 +6,7 @@ namespace OpenBookAPI.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize]
+[AllowAnonymous] // TODO: Re-enable [Authorize] after implementing auth in mobile app
 public class AuthorsController : ControllerBase
 {
     private readonly IAuthorService _authorService;
