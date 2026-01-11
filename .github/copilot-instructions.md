@@ -170,3 +170,9 @@ GET /api/authors/search?query=tolkien&page=1&limit=5
 GET /api/authors/{authorKey}
 GET /api/authors/{authorKey}/works?page=1&limit=10
 ```
+
+---
+
+## Related Instructions
+
+- **Mobile App Development**: See [copilot-instructions-mobile.md](./copilot-instructions-mobile.md) for React Native specific guidelines
