@@ -25,3 +25,7 @@ Thumbs.db
 TestResults/
 # GitHub Copilot
 .github/copilot-instructions.md
+/src/OpenBookAPI.MobileUI/node_modules/
+# Gradle files
+/src/OpenBookAPI.MobileUI/android/.gradle/
+/src/OpenBookAPI.MobileUI/android/build/
