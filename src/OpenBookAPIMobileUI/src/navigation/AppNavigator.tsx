@@ -50,7 +50,7 @@ const HomeStackNavigator: React.FC = () => (
     <HomeStack.Screen
       name="HomeMain"
       component={HomeScreen}
-      options={{ title: 'OpenBook' }}
+      options={{ title: 'Read Land' }}
     />
     <HomeStack.Screen
       name="BookDetail"

@@ -27,6 +27,6 @@ export const API_CONFIG = {
 };
 
 export const APP_CONFIG = {
-    NAME: 'OpenBook',
+    NAME: 'Read Land',
     VERSION: '1.0.0',
 };

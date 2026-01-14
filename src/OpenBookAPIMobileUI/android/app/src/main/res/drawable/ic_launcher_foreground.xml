@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    
+    <!-- Book body -->
+    <path
+        android:fillColor="#ECF0F1"
+        android:strokeColor="#34495E"
+        android:strokeWidth="2"
+        android:pathData="M39,29 L69,29 Q71,29 71,31 L71,67 Q71,69 69,69 L39,69 Q37,69 37,67 L37,31 Q37,29 39,29 Z"/>
+    
+    <!-- Book spine -->
+    <path
+        android:fillColor="#34495E"
+        android:pathData="M37,29 L41,29 L41,69 L37,69 Z"/>
+    
+    <!-- Pages effect -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:alpha="0.7"
+        android:pathData="M44,31 L68,31 L68,67 L44,67 Z"/>
+    
+    <!-- Bookmark ribbon body -->
+    <path
+        android:fillColor="#E74C3C"
+        android:pathData="M49,29 L53,29 L53,51 L49,51 Z"/>
+    
+    <!-- Bookmark ribbon tail -->
+    <path
+        android:fillColor="#E74C3C"
+        android:pathData="M49,51 L51,55 L53,51 Z"/>
+    
+    <!-- Progress bar background -->
+    <path
+        android:fillColor="#34495E"
+        android:alpha="0.3"
+        android:pathData="M41,74 Q40,74 40,75.5 L40,77 Q40,78.5 41,78.5 L67,78.5 Q68,78.5 68,77 L68,75.5 Q68,74 67,74 Z"/>
+    
+    <!-- Progress bar fill -->
+    <path
+        android:fillColor="#F39C12"
+        android:pathData="M41,74 Q40,74 40,75.5 L40,77 Q40,78.5 41,78.5 L55,78.5 Q56,78.5 56,77 L56,75.5 Q56,74 55,74 Z"/>
+</vector>
