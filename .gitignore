@@ -23,9 +23,56 @@ Thumbs.db
 
 # Test results
 TestResults/
+
 # GitHub Copilot
 .github/copilot-instructions.md
-/src/OpenBookAPI.MobileUI/node_modules/
-# Gradle files
-/src/OpenBookAPI.MobileUI/android/.gradle/
-/src/OpenBookAPI.MobileUI/android/build/
+
+# =====================
+# React Native / Mobile
+# =====================
+
+# Node modules
+**/node_modules/
+
+# React Native
+src/OpenBookAPIMobileUI/.bundle/
+src/OpenBookAPIMobileUI/.metro-health-check*
+
+# Android
+src/OpenBookAPIMobileUI/android/.gradle/
+src/OpenBookAPIMobileUI/android/.kotlin/
+src/OpenBookAPIMobileUI/android/build/
+src/OpenBookAPIMobileUI/android/app/build/
+src/OpenBookAPIMobileUI/android/local.properties
+src/OpenBookAPIMobileUI/android/*.iml
+src/OpenBookAPIMobileUI/android/.idea/
+
+# iOS
+src/OpenBookAPIMobileUI/ios/Pods/
+src/OpenBookAPIMobileUI/ios/build/
+src/OpenBookAPIMobileUI/ios/*.xcworkspace
+src/OpenBookAPIMobileUI/ios/*.pbxuser
+src/OpenBookAPIMobileUI/ios/*.mode1v3
+src/OpenBookAPIMobileUI/ios/*.mode2v3
+src/OpenBookAPIMobileUI/ios/*.perspectivev3
+src/OpenBookAPIMobileUI/ios/*.xcuserstate
+src/OpenBookAPIMobileUI/ios/xcuserdata/
+src/OpenBookAPIMobileUI/ios/*.hmap
+src/OpenBookAPIMobileUI/ios/*.ipa
+
+# Ruby/CocoaPods
+src/OpenBookAPIMobileUI/vendor/
+src/OpenBookAPIMobileUI/Gemfile.lock
+
+# Metro bundler
+src/OpenBookAPIMobileUI/.metro/
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+
+# Debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
