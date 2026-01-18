@@ -3,11 +3,20 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "android": "react-native run-android",
+    "android": "react-native run-android --mode=devDebug",
+    "android:dev": "react-native run-android --mode=devDebug",
+    "android:pre": "react-native run-android --mode=preDebug",
+    "android:pre:release": "react-native run-android --mode=preRelease",
+    "android:prod": "react-native run-android --mode=prodRelease",
     "ios": "react-native run-ios",
-    "lint": "eslint .",
+    "ios:dev": "ENVFILE=.env.development react-native run-ios",
+    "ios:pre": "ENVFILE=.env.pre react-native run-ios",
+    "ios:prod": "ENVFILE=.env.production react-native run-ios",
     "start": "react-native start",
-    "test": "jest"
+    "start:reset": "react-native start --reset-cache",
+    "lint": "eslint .",
+    "test": "jest",
+    "clean:android": "cd android && gradlew clean && cd .."
   },
   "dependencies": {
     "@nozbe/watermelondb": "^0.27.1",
@@ -19,6 +28,7 @@
     "@react-navigation/native-stack": "^7.9.1",
     "react": "19.2.0",
     "react-native": "0.83.1",
+    "react-native-config": "^1.6.1",
     "react-native-safe-area-context": "^5.6.2",
     "react-native-screens": "^4.19.0",
     "react-native-vector-icons": "^10.3.0"

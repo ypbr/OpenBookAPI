@@ -73,3 +73,11 @@ yarn-error.log
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+
+# Environment files (keep templates, ignore actual env files with secrets)
+.env
+.env.local
+# Uncomment below lines if env files contain sensitive data
+# .env.development
+# .env.pre
+# .env.production
