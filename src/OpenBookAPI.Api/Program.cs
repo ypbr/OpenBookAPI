@@ -9,6 +9,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
+// Add Health Checks
+builder.Services.AddHealthChecks();
+
 // Register Application & Infrastructure services
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);
@@ -56,6 +59,9 @@ app.UseApiClientValidation();
 // Authentication & Authorization
 app.UseAuthentication();
 app.UseAuthorization();
+
+// Map Health Check endpoint (before controllers, no auth required)
+app.MapHealthChecks("/api/health");
 
 app.MapControllers();
 
