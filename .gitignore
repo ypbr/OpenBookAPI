@@ -27,6 +27,9 @@ TestResults/
 # GitHub Copilot
 .github/copilot-instructions.md
 
+#dotnet publish
+src/**/publish/
+
 # =====================
 # React Native / Mobile
 # =====================
