@@ -1,13 +1,13 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import {
   Image,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { authorService } from '../api';
 import { ErrorView, LoadingIndicator } from '../components';
 import { AuthorDetail, AuthorWorks, BookSummary } from '../types/api.types';
@@ -70,7 +70,7 @@ export const AuthorDetailScreen: React.FC<AuthorDetailScreenProps> = ({
   const handleBookPress = useCallback(
     (book: BookSummary) => {
       navigation.navigate('BookDetail', {
-        workKey: book.workKey,
+        workKey: book.key,
         title: book.title,
       });
     },
@@ -173,7 +173,7 @@ export const AuthorDetailScreen: React.FC<AuthorDetailScreenProps> = ({
               </Text>
               {works.works.map((book, index) => (
                 <TouchableOpacity
-                  key={`${book.workKey}-${index}`}
+                  key={`${book.key}-${index}`}
                   style={styles.workItem}
                   onPress={() => handleBookPress(book)}
                 >

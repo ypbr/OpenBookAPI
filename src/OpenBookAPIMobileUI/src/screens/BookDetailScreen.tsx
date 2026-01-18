@@ -1,14 +1,15 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import {
   Image,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
+  TouchableOpacity,
   View,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { bookService } from '../api';
-import { ErrorView, LoadingIndicator } from '../components';
+import { AddToListModal, ErrorView, LoadingIndicator } from '../components';
 import { BookDetail } from '../types/api.types';
 
 interface BookDetailScreenProps {
@@ -27,12 +28,13 @@ export const BookDetailScreen: React.FC<BookDetailScreenProps> = ({
   const [book, setBook] = useState<BookDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [addToListModalVisible, setAddToListModalVisible] = useState(false);
 
   const fetchBookDetail = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
-      const result = await bookService.getByWorkKey(workKey);
+      const result = await bookService.getByKey(workKey);
       setBook(result);
     } catch (err: any) {
       setError(err.detail || err.message || 'Failed to load book details');
@@ -92,8 +94,10 @@ export const BookDetailScreen: React.FC<BookDetailScreenProps> = ({
             <Text style={styles.subtitle}>{book.subtitle}</Text>
           )}
 
-          {book.authorNames && book.authorNames.length > 0 && (
-            <Text style={styles.authors}>by {book.authorNames.join(', ')}</Text>
+          {book.authors && book.authors.length > 0 && (
+            <Text style={styles.authors}>
+              by {book.authors.map(a => a.name || 'Unknown').join(', ')}
+            </Text>
           )}
 
           {book.firstPublishDate && (
@@ -158,6 +162,26 @@ export const BookDetailScreen: React.FC<BookDetailScreenProps> = ({
           </View>
         )}
       </ScrollView>
+
+      {/* Floating Action Button - Add to List */}
+      <TouchableOpacity
+        style={styles.fab}
+        onPress={() => setAddToListModalVisible(true)}
+        accessibilityLabel="Add to list"
+        accessibilityRole="button"
+      >
+        <Text style={styles.fabIcon}>📚</Text>
+      </TouchableOpacity>
+
+      {/* Add to List Modal */}
+      <AddToListModal
+        visible={addToListModalVisible}
+        onClose={() => setAddToListModalVisible(false)}
+        workKey={book.key}
+        title={book.title}
+        coverUrl={book.coverUrl || null}
+        authorNames={book.authors?.map(a => a.name || 'Unknown') || []}
+      />
     </SafeAreaView>
   );
 };
@@ -281,5 +305,24 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#888',
     marginTop: 4,
+  },
+  fab: {
+    position: 'absolute',
+    right: 20,
+    bottom: 20,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: '#007AFF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#007AFF',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  fabIcon: {
+    fontSize: 24,
   },
 });

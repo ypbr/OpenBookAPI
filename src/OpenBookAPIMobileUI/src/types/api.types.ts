@@ -1,9 +1,9 @@
 // API Response Types for OpenBookAPI
 
 export interface BookSummary {
-    workKey: string;
+    key: string;  // Backend returns 'key', e.g., "OL2333578W"
     title: string;
-    authorNames: string[];
+    authors: string[];  // Backend returns 'authors'
     firstPublishYear?: number;
     coverUrl?: string;
     editionCount?: number;
@@ -19,13 +19,19 @@ export interface BookSearchResult {
     books: BookSummary[];
 }
 
+// Author reference in BookDetail
+export interface AuthorRef {
+    key: string;
+    name: string | null;
+}
+
 export interface BookDetail {
-    workKey: string;
+    key: string;  // Backend returns 'key'
     title: string;
     subtitle?: string;
     description?: string;
     subjects?: string[];
-    authorNames: string[];
+    authors: AuthorRef[];  // Backend returns array of {key, name}
     coverUrl?: string;
     firstPublishDate?: string;
     ratingsInfo?: RatingsInfo;
@@ -49,10 +55,13 @@ export interface BookshelvesInfo {
 }
 
 export interface AuthorSummary {
-    authorKey: string;
+    key: string;  // Backend returns 'key'
     name: string;
     photoUrl?: string;
     workCount?: number;
+    birthDate?: string;
+    deathDate?: string;
+    topWork?: string;
 }
 
 export interface AuthorSearchResult {
@@ -66,7 +75,7 @@ export interface AuthorSearchResult {
 }
 
 export interface AuthorDetail {
-    authorKey: string;
+    key: string;  // Backend returns 'key'
     name: string;
     personalName?: string;
     birthDate?: string;

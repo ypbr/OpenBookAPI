@@ -31,7 +31,9 @@ export const SearchBar: React.FC<SearchBarProps> = ({
         returnKeyType="search"
         onSubmitEditing={onSubmit}
         autoCapitalize="none"
-        autoCorrect={false}
+        autoCorrect={true}
+        keyboardType="default"
+        textContentType="none"
         accessibilityLabel="Search input"
       />
       <TouchableOpacity

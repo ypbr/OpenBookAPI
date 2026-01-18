@@ -1,22 +1,18 @@
 import React from 'react';
 import {
   Linking,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { APP_CONFIG } from '../constants/config';
 
 export const SettingsScreen: React.FC = () => {
   const handleOpenLibrary = () => {
     Linking.openURL('https://openlibrary.org');
-  };
-
-  const handleGitHub = () => {
-    Linking.openURL('https://github.com/ypbr/OpenBookAPI');
   };
 
   return (
@@ -47,14 +43,6 @@ export const SettingsScreen: React.FC = () => {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Source Code</Text>
-          <TouchableOpacity style={styles.linkRow} onPress={handleGitHub}>
-            <Text style={styles.linkText}>GitHub Repository</Text>
-            <Text style={styles.linkIcon}>↗</Text>
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.section}>
           <Text style={styles.sectionTitle}>Preferences</Text>
           <View style={styles.settingRow}>
             <Text style={styles.settingLabel}>Dark Mode</Text>
@@ -64,10 +52,6 @@ export const SettingsScreen: React.FC = () => {
             <Text style={styles.settingLabel}>Notifications</Text>
             <Text style={styles.settingValue}>Coming Soon</Text>
           </View>
-        </View>
-
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>Made with ❤️ using React Native</Text>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -150,13 +134,5 @@ const styles = StyleSheet.create({
   settingValue: {
     fontSize: 14,
     color: '#999',
-  },
-  footer: {
-    padding: 32,
-    alignItems: 'center',
-  },
-  footerText: {
-    fontSize: 14,
-    color: '#888',
   },
 });

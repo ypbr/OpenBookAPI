@@ -25,6 +25,9 @@ export const authorService = {
      * Get author details by author key
      */
     getByAuthorKey: async (authorKey: string): Promise<AuthorDetail> => {
+        if (!authorKey) {
+            throw new Error('Author key is required');
+        }
         // Remove /authors/ prefix if present
         const cleanKey = authorKey.replace('/authors/', '');
         return apiClient.get<AuthorDetail>(`${API_CONFIG.ENDPOINTS.AUTHORS.DETAIL}/${cleanKey}`);
@@ -37,6 +40,9 @@ export const authorService = {
         authorKey: string,
         params?: PaginationParams,
     ): Promise<AuthorWorks> => {
+        if (!authorKey) {
+            throw new Error('Author key is required');
+        }
         const cleanKey = authorKey.replace('/authors/', '');
         return apiClient.get<AuthorWorks>(
             `${API_CONFIG.ENDPOINTS.AUTHORS.WORKS}/${cleanKey}/works`,

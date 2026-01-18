@@ -9,12 +9,15 @@ import {
   BookDetailScreen,
   BooksScreen,
   HomeScreen,
+  LibraryScreen,
+  ListDetailScreen,
   SettingsScreen,
 } from '../screens';
 import {
   AuthorsStackParamList,
   BooksStackParamList,
   HomeStackParamList,
+  LibraryStackParamList,
   RootTabParamList,
   SettingsStackParamList,
 } from '../types';
@@ -23,6 +26,7 @@ const Tab = createBottomTabNavigator<RootTabParamList>();
 const HomeStack = createNativeStackNavigator<HomeStackParamList>();
 const BooksStack = createNativeStackNavigator<BooksStackParamList>();
 const AuthorsStack = createNativeStackNavigator<AuthorsStackParamList>();
+const LibraryStack = createNativeStackNavigator<LibraryStackParamList>();
 const SettingsStack = createNativeStackNavigator<SettingsStackParamList>();
 
 const screenOptions = {
@@ -116,6 +120,31 @@ const SettingsStackNavigator: React.FC = () => (
   </SettingsStack.Navigator>
 );
 
+// Library Stack Navigator
+const LibraryStackNavigator: React.FC = () => (
+  <LibraryStack.Navigator screenOptions={screenOptions}>
+    <LibraryStack.Screen
+      name="LibraryMain"
+      component={LibraryScreen}
+      options={{ title: 'My Library' }}
+    />
+    <LibraryStack.Screen
+      name="ListDetail"
+      component={ListDetailScreen}
+      options={({ route }) => ({
+        title: route.params.listName || 'List',
+      })}
+    />
+    <LibraryStack.Screen
+      name="BookDetail"
+      component={BookDetailScreen}
+      options={({ route }) => ({
+        title: route.params.title || 'Book Details',
+      })}
+    />
+  </LibraryStack.Navigator>
+);
+
 export const AppNavigator: React.FC = () => {
   return (
     <NavigationContainer>
@@ -155,6 +184,16 @@ export const AppNavigator: React.FC = () => {
             tabBarLabel: 'Authors',
             tabBarIcon: ({ focused }) => (
               <TabIcon icon="✍️" focused={focused} />
+            ),
+          }}
+        />
+        <Tab.Screen
+          name="LibraryTab"
+          component={LibraryStackNavigator}
+          options={{
+            tabBarLabel: 'Library',
+            tabBarIcon: ({ focused }) => (
+              <TabIcon icon="📖" focused={focused} />
             ),
           }}
         />

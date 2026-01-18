@@ -31,11 +31,24 @@ export type SettingsStackParamList = {
     SettingsMain: undefined;
 };
 
+export type LibraryStackParamList = {
+    LibraryMain: undefined;
+    ListDetail: {
+        listId: string;
+        listName: string;
+    };
+    BookDetail: {
+        workKey: string;
+        title?: string;
+    };
+};
+
 // Bottom Tab param list
 export type RootTabParamList = {
     HomeTab: undefined;
     BooksTab: undefined;
     AuthorsTab: undefined;
+    LibraryTab: undefined;
     SettingsTab: undefined;
 };
 
