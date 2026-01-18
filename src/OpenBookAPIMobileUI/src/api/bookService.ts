@@ -22,9 +22,12 @@ export const bookService = {
     /**
      * Get book details by work key
      */
-    getByWorkKey: async (workKey: string): Promise<BookDetail> => {
+    getByKey: async (key: string): Promise<BookDetail> => {
+        if (!key) {
+            throw new Error('Book key is required');
+        }
         // Remove /works/ prefix if present
-        const cleanKey = workKey.replace('/works/', '');
+        const cleanKey = key.replace('/works/', '');
         return apiClient.get<BookDetail>(`${API_CONFIG.ENDPOINTS.BOOKS.DETAIL}/${cleanKey}`);
     },
 

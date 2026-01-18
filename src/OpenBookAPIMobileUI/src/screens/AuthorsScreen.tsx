@@ -1,11 +1,6 @@
 import React, { useCallback, useState } from 'react';
-import {
-  FlatList,
-  RefreshControl,
-  SafeAreaView,
-  StyleSheet,
-  View,
-} from 'react-native';
+import { FlatList, RefreshControl, StyleSheet, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { authorService } from '../api';
 import {
   AuthorCard,
@@ -86,7 +81,7 @@ export const AuthorsScreen: React.FC<AuthorsScreenProps> = ({ navigation }) => {
   const handleAuthorPress = useCallback(
     (author: AuthorSummary) => {
       navigation.navigate('AuthorDetail', {
-        authorKey: author.authorKey,
+        authorKey: author.key,
         name: author.name,
       });
     },
@@ -140,7 +135,7 @@ export const AuthorsScreen: React.FC<AuthorsScreenProps> = ({ navigation }) => {
       <FlatList
         data={searchResults.authors}
         renderItem={renderAuthor}
-        keyExtractor={(item, index) => `${item.authorKey}-${index}`}
+        keyExtractor={(item, index) => `${item.key}-${index}`}
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}
         refreshControl={

@@ -43,9 +43,9 @@ export const BookCard: React.FC<BookCardProps> = ({ book, onPress }) => {
         <Text style={styles.title} numberOfLines={2}>
           {book.title}
         </Text>
-        {book.authorNames && book.authorNames.length > 0 && (
+        {book.authors && book.authors.length > 0 && (
           <Text style={styles.author} numberOfLines={1}>
-            {book.authorNames.join(', ')}
+            {book.authors.join(', ')}
           </Text>
         )}
         {book.firstPublishYear && (

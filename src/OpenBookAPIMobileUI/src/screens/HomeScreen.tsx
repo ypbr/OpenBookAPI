@@ -1,11 +1,6 @@
 import React, { useCallback, useState } from 'react';
-import {
-  FlatList,
-  RefreshControl,
-  SafeAreaView,
-  StyleSheet,
-  View,
-} from 'react-native';
+import { FlatList, RefreshControl, StyleSheet, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { bookService } from '../api';
 import {
   BookCard,
@@ -86,7 +81,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   const handleBookPress = useCallback(
     (book: BookSummary) => {
       navigation.navigate('BookDetail', {
-        workKey: book.workKey,
+        workKey: book.key,
         title: book.title,
       });
     },
@@ -140,7 +135,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
       <FlatList
         data={searchResults.books}
         renderItem={renderBook}
-        keyExtractor={(item, index) => `${item.workKey}-${index}`}
+        keyExtractor={(item, index) => `${item.key}-${index}`}
         numColumns={2}
         columnWrapperStyle={styles.row}
         contentContainerStyle={styles.listContent}
