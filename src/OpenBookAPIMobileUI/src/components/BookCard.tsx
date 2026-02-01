@@ -1,32 +1,40 @@
-import React from 'react';
-import {
-  Dimensions,
-  Image,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import React, { useMemo } from 'react';
+import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { BookSummary } from '../types/api.types';
-
-const { width } = Dimensions.get('window');
-const CARD_WIDTH = (width - 48) / 2;
 
 interface BookCardProps {
   book: BookSummary;
   onPress: (book: BookSummary) => void;
+  cardWidth: number;
 }
 
-export const BookCard: React.FC<BookCardProps> = ({ book, onPress }) => {
+export const BookCard: React.FC<BookCardProps> = ({
+  book,
+  onPress,
+  cardWidth,
+}) => {
+  // Calculate dynamic styles based on cardWidth
+  const dynamicStyles = useMemo(
+    () => ({
+      container: {
+        width: cardWidth,
+      },
+      imageContainer: {
+        height: cardWidth * 1.4,
+      },
+    }),
+    [cardWidth],
+  );
+
   return (
     <TouchableOpacity
-      style={styles.container}
+      style={[styles.container, dynamicStyles.container]}
       onPress={() => onPress(book)}
       activeOpacity={0.7}
       accessibilityLabel={`Book: ${book.title}`}
       accessibilityRole="button"
     >
-      <View style={styles.imageContainer}>
+      <View style={[styles.imageContainer, dynamicStyles.imageContainer]}>
         {book.coverUrl ? (
           <Image
             source={{ uri: book.coverUrl }}
@@ -58,7 +66,6 @@ export const BookCard: React.FC<BookCardProps> = ({ book, onPress }) => {
 
 const styles = StyleSheet.create({
   container: {
-    width: CARD_WIDTH,
     marginBottom: 16,
     backgroundColor: '#fff',
     borderRadius: 12,
@@ -71,7 +78,6 @@ const styles = StyleSheet.create({
   },
   imageContainer: {
     width: '100%',
-    height: CARD_WIDTH * 1.4,
     backgroundColor: '#f0f0f0',
   },
   coverImage: {

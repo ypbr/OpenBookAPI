@@ -16,6 +16,7 @@ import { CreateListModal } from '../components/CreateListModal';
 import { ListCard } from '../components/ListCard';
 import { ReadingList } from '../database';
 import { useReadingLists } from '../hooks/useReadingLists';
+import { useResponsive } from '../hooks/useResponsive';
 import { libraryService } from '../services/libraryService';
 import { LibraryStackParamList } from '../types';
 
@@ -26,6 +27,7 @@ type LibraryScreenNavigationProp = NativeStackNavigationProp<
 
 export const LibraryScreen: React.FC = () => {
   const navigation = useNavigation<LibraryScreenNavigationProp>();
+  const { listColumns, listCardWidth } = useResponsive();
   const { lists, loading, error, refresh } = useReadingLists();
   const [refreshing, setRefreshing] = useState(false);
   const [createModalVisible, setCreateModalVisible] = useState(false);
@@ -126,9 +128,10 @@ export const LibraryScreen: React.FC = () => {
         isSystem={item.isSystemList}
         onPress={() => handleListPress(item)}
         onLongPress={() => handleListLongPress(item)}
+        cardWidth={listCardWidth}
       />
     ),
-    [handleListPress, handleListLongPress],
+    [handleListPress, handleListLongPress, listCardWidth],
   );
 
   const renderEmptyState = () => (
@@ -167,7 +170,8 @@ export const LibraryScreen: React.FC = () => {
         data={lists}
         renderItem={renderListCard}
         keyExtractor={item => item.id}
-        numColumns={2}
+        key={`lists-grid-${listColumns}`}
+        numColumns={listColumns}
         columnWrapperStyle={styles.row}
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}

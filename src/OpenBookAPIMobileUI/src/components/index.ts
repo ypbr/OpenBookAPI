@@ -6,5 +6,6 @@ export { EmptyState } from './EmptyState';
 export { ErrorView } from './ErrorView';
 export { ListCard } from './ListCard';
 export { LoadingIndicator } from './LoadingIndicator';
+export { ReadingProgressModal } from './ReadingProgressModal';
 export { SearchBar } from './SearchBar';
 

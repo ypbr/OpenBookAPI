@@ -88,16 +88,16 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace "com.openbookapimobileui"
+    namespace "com.readland"
     defaultConfig {
-        applicationId "com.openbookapimobileui"
+        applicationId "com.readland"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
         
         // react-native-config: Make env variables accessible
-        resValue "string", "build_config_package", "com.openbookapimobileui"
+        resValue "string", "build_config_package", "com.readland"
     }
     
     // Product flavors for different environments

@@ -6,4 +6,5 @@ public interface IOpenLibraryClient
     Task<T?> SearchAsync<T>(string query, int page = 1, int limit = 10) where T : class;
     Task<T?> SearchAuthorsAsync<T>(string query, int page = 1, int limit = 10) where T : class;
     Task<T?> GetAuthorWorksAsync<T>(string authorKey, int page = 1, int limit = 10) where T : class;
+    Task<int?> GetWorkPageCountAsync(string workKey);
 }

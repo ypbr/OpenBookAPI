@@ -5,7 +5,7 @@ import { appSchema, tableSchema } from '@nozbe/watermelondb';
  * Tables: reading_lists, saved_books, list_books (junction)
  */
 export const schema = appSchema({
-    version: 1,
+    version: 2,
     tables: [
         /**
          * Reading Lists table
@@ -42,6 +42,11 @@ export const schema = appSchema({
                 { name: 'user_rating', type: 'number', isOptional: true }, // 0-5
                 { name: 'notes', type: 'string', isOptional: true },
                 { name: 'reading_progress', type: 'number' }, // 0-100
+                // Reading tracking fields
+                { name: 'total_pages', type: 'number', isOptional: true },
+                { name: 'current_page', type: 'number', isOptional: true },
+                { name: 'reading_started_at', type: 'number', isOptional: true },
+                { name: 'reading_finished_at', type: 'number', isOptional: true },
                 { name: 'created_at', type: 'number' },
                 { name: 'updated_at', type: 'number' },
                 // Sync fields

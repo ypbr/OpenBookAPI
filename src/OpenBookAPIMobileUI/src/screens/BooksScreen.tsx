@@ -9,6 +9,7 @@ import {
   LoadingIndicator,
   SearchBar,
 } from '../components';
+import { useResponsive } from '../hooks/useResponsive';
 import { BookSearchResult, BookSummary } from '../types/api.types';
 
 interface BooksScreenProps {
@@ -16,6 +17,7 @@ interface BooksScreenProps {
 }
 
 export const BooksScreen: React.FC<BooksScreenProps> = ({ navigation }) => {
+  const { bookColumns, bookCardWidth } = useResponsive();
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<BookSearchResult | null>(
     null,
@@ -90,9 +92,13 @@ export const BooksScreen: React.FC<BooksScreenProps> = ({ navigation }) => {
 
   const renderBook = useCallback(
     ({ item }: { item: BookSummary }) => (
-      <BookCard book={item} onPress={handleBookPress} />
+      <BookCard
+        book={item}
+        onPress={handleBookPress}
+        cardWidth={bookCardWidth}
+      />
     ),
-    [handleBookPress],
+    [handleBookPress, bookCardWidth],
   );
 
   const renderFooter = useCallback(() => {
@@ -136,7 +142,8 @@ export const BooksScreen: React.FC<BooksScreenProps> = ({ navigation }) => {
         data={searchResults.books}
         renderItem={renderBook}
         keyExtractor={(item, index) => `${item.key}-${index}`}
-        numColumns={2}
+        key={`books-grid-${bookColumns}`}
+        numColumns={bookColumns}
         columnWrapperStyle={styles.row}
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}

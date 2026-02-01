@@ -57,4 +57,16 @@ public class BookService : IBookService
         var endpoint = $"/works/{workKey}/ratings.json";
         return await _openLibraryClient.GetAsync<RatingsInfo>(endpoint);
     }
+
+    public async Task<BookPageInfo?> GetPageCountAsync(string workKey)
+    {
+        var pageCount = await _openLibraryClient.GetWorkPageCountAsync(workKey);
+        if (pageCount == null)
+            return null;
+
+        return new BookPageInfo(
+            PageCount: pageCount,
+            Source: "OpenLibrary"
+        );
+    }
 }

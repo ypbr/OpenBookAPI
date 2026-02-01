@@ -1,4 +1,4 @@
-package com.openbookapimobileui
+package com.readland
 
 import android.app.Application
 import com.facebook.react.PackageList

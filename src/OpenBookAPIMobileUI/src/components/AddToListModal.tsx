@@ -9,8 +9,10 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { ReadingList, readingListsCollection } from '../database';
+import { ReadingList, readingListsCollection, SavedBook } from '../database';
 import { libraryService } from '../services/libraryService';
+import { SystemListId } from '../types/library.types';
+import { ReadingProgressModal } from './ReadingProgressModal';
 
 interface AddToListModalProps {
   visible: boolean;
@@ -40,6 +42,10 @@ export const AddToListModal: React.FC<AddToListModalProps> = ({
   const [pendingChanges, setPendingChanges] = useState<Map<string, boolean>>(
     new Map(),
   );
+  // Reading progress modal state
+  const [showProgressModal, setShowProgressModal] = useState(false);
+  const [savedBookForProgress, setSavedBookForProgress] =
+    useState<SavedBook | null>(null);
 
   // Load lists and their status when modal opens
   useEffect(() => {
@@ -123,6 +129,13 @@ export const AddToListModal: React.FC<AddToListModalProps> = ({
         authorNames,
       };
 
+      // Check if "Reading" list is being added (not already selected)
+      const isAddingToReadingList =
+        pendingChanges.get(SystemListId.READING) === true;
+      const wasAlreadyInReadingList =
+        listsWithStatus.find(l => l.list.id === SystemListId.READING)
+          ?.isSelected ?? false;
+
       for (const [listId, shouldAdd] of pendingChanges) {
         if (shouldAdd) {
           // Add book to list
@@ -135,6 +148,19 @@ export const AddToListModal: React.FC<AddToListModalProps> = ({
           }
         }
       }
+
+      // If adding to "Reading" list for the first time, show progress modal
+      if (isAddingToReadingList && !wasAlreadyInReadingList) {
+        const savedBook = await libraryService.getBookByWorkKey(workKey);
+        if (savedBook) {
+          setSavedBookForProgress(savedBook);
+          setShowProgressModal(true);
+          // Don't close yet, wait for progress modal
+          setSaving(false);
+          return;
+        }
+      }
+
       onClose();
     } catch (err) {
       console.error('Error saving list changes:', err);
@@ -143,118 +169,134 @@ export const AddToListModal: React.FC<AddToListModalProps> = ({
     }
   };
 
+  const handleProgressModalClose = () => {
+    setShowProgressModal(false);
+    setSavedBookForProgress(null);
+    onClose();
+  };
+
   const hasChanges = pendingChanges.size > 0;
 
   return (
-    <Modal
-      visible={visible}
-      animationType="slide"
-      transparent={true}
-      onRequestClose={onClose}
-    >
-      <View style={styles.modalOverlay}>
-        <View style={styles.modalContent}>
-          <View style={styles.header}>
-            <Text style={styles.title}>Add to List</Text>
-            <TouchableOpacity
-              onPress={onClose}
-              disabled={saving}
-              accessibilityLabel="Close"
-              accessibilityRole="button"
-            >
-              <Text style={styles.closeButton}>✕</Text>
-            </TouchableOpacity>
-          </View>
-
-          <Text style={styles.bookTitle} numberOfLines={2}>
-            {title}
-          </Text>
-
-          {loading ? (
-            <View style={styles.loadingContainer}>
-              <ActivityIndicator size="large" color="#007AFF" />
-              <Text style={styles.loadingText}>Loading lists...</Text>
+    <>
+      <Modal
+        visible={visible && !showProgressModal}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={onClose}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.header}>
+              <Text style={styles.title}>Add to List</Text>
+              <TouchableOpacity
+                onPress={onClose}
+                disabled={saving}
+                accessibilityLabel="Close"
+                accessibilityRole="button"
+              >
+                <Text style={styles.closeButton}>✕</Text>
+              </TouchableOpacity>
             </View>
-          ) : (
-            <ScrollView
-              style={styles.listContainer}
-              showsVerticalScrollIndicator={false}
-            >
-              {listsWithStatus.map(({ list }) => {
-                const isSelected = getEffectiveStatus(list.id);
-                const hasChanged = pendingChanges.has(list.id);
 
-                return (
-                  <TouchableOpacity
-                    key={list.id}
-                    style={[
-                      styles.listItem,
-                      isSelected && styles.listItemSelected,
-                      hasChanged && styles.listItemChanged,
-                    ]}
-                    onPress={() => toggleList(list.id, isSelected)}
-                    disabled={saving}
-                    accessibilityLabel={`${list.name}, ${
-                      isSelected ? 'selected' : 'not selected'
-                    }`}
-                    accessibilityRole="checkbox"
-                    accessibilityState={{ checked: isSelected }}
-                  >
-                    <View
-                      style={[
-                        styles.listIcon,
-                        { backgroundColor: list.color + '20' },
-                      ]}
-                    >
-                      <Text style={styles.listIconText}>{list.icon}</Text>
-                    </View>
-                    <Text style={styles.listName}>{list.name}</Text>
-                    <View
-                      style={[
-                        styles.checkbox,
-                        isSelected && styles.checkboxSelected,
-                      ]}
-                    >
-                      {isSelected && <Text style={styles.checkmark}>✓</Text>}
-                    </View>
-                  </TouchableOpacity>
-                );
-              })}
-            </ScrollView>
-          )}
+            <Text style={styles.bookTitle} numberOfLines={2}>
+              {title}
+            </Text>
 
-          <View style={styles.actions}>
-            <TouchableOpacity
-              style={styles.cancelButton}
-              onPress={onClose}
-              disabled={saving}
-              accessibilityLabel="Cancel"
-              accessibilityRole="button"
-            >
-              <Text style={styles.cancelButtonText}>Cancel</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[
-                styles.saveButton,
-                (!hasChanges || saving) && styles.saveButtonDisabled,
-              ]}
-              onPress={handleSave}
-              disabled={!hasChanges || saving}
-              accessibilityLabel="Save"
-              accessibilityRole="button"
-            >
-              {saving ? (
-                <ActivityIndicator size="small" color="#fff" />
-              ) : (
-                <Text style={styles.saveButtonText}>
-                  {hasChanges ? 'Save' : 'Done'}
-                </Text>
-              )}
-            </TouchableOpacity>
+            {loading ? (
+              <View style={styles.loadingContainer}>
+                <ActivityIndicator size="large" color="#007AFF" />
+                <Text style={styles.loadingText}>Loading lists...</Text>
+              </View>
+            ) : (
+              <ScrollView
+                style={styles.listContainer}
+                showsVerticalScrollIndicator={false}
+              >
+                {listsWithStatus.map(({ list }) => {
+                  const isSelected = getEffectiveStatus(list.id);
+                  const hasChanged = pendingChanges.has(list.id);
+
+                  return (
+                    <TouchableOpacity
+                      key={list.id}
+                      style={[
+                        styles.listItem,
+                        isSelected && styles.listItemSelected,
+                        hasChanged && styles.listItemChanged,
+                      ]}
+                      onPress={() => toggleList(list.id, isSelected)}
+                      disabled={saving}
+                      accessibilityLabel={`${list.name}, ${
+                        isSelected ? 'selected' : 'not selected'
+                      }`}
+                      accessibilityRole="checkbox"
+                      accessibilityState={{ checked: isSelected }}
+                    >
+                      <View
+                        style={[
+                          styles.listIcon,
+                          { backgroundColor: list.color + '20' },
+                        ]}
+                      >
+                        <Text style={styles.listIconText}>{list.icon}</Text>
+                      </View>
+                      <Text style={styles.listName}>{list.name}</Text>
+                      <View
+                        style={[
+                          styles.checkbox,
+                          isSelected && styles.checkboxSelected,
+                        ]}
+                      >
+                        {isSelected && <Text style={styles.checkmark}>✓</Text>}
+                      </View>
+                    </TouchableOpacity>
+                  );
+                })}
+              </ScrollView>
+            )}
+
+            <View style={styles.actions}>
+              <TouchableOpacity
+                style={styles.cancelButton}
+                onPress={onClose}
+                disabled={saving}
+                accessibilityLabel="Cancel"
+                accessibilityRole="button"
+              >
+                <Text style={styles.cancelButtonText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[
+                  styles.saveButton,
+                  (!hasChanges || saving) && styles.saveButtonDisabled,
+                ]}
+                onPress={handleSave}
+                disabled={!hasChanges || saving}
+                accessibilityLabel="Save"
+                accessibilityRole="button"
+              >
+                {saving ? (
+                  <ActivityIndicator size="small" color="#fff" />
+                ) : (
+                  <Text style={styles.saveButtonText}>
+                    {hasChanges ? 'Save' : 'Done'}
+                  </Text>
+                )}
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
-      </View>
-    </Modal>
+      </Modal>
+
+      {/* Reading Progress Modal - shown when adding to "Reading" list */}
+      <ReadingProgressModal
+        visible={showProgressModal}
+        onClose={handleProgressModalClose}
+        book={savedBookForProgress}
+        isInitialSetup={true}
+      />
+    </>
   );
 };
 

@@ -1,22 +1,42 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { AuthorSummary } from '../types/api.types';
 
 interface AuthorCardProps {
   author: AuthorSummary;
   onPress: (author: AuthorSummary) => void;
+  cardWidth?: number;
+  avatarSize?: number;
 }
 
-export const AuthorCard: React.FC<AuthorCardProps> = ({ author, onPress }) => {
+export const AuthorCard: React.FC<AuthorCardProps> = ({
+  author,
+  onPress,
+  cardWidth,
+  avatarSize = 60,
+}) => {
+  // Calculate dynamic styles based on props
+  const dynamicStyles = useMemo(
+    () => ({
+      container: cardWidth ? { width: cardWidth } : {},
+      avatarContainer: {
+        width: avatarSize,
+        height: avatarSize,
+        borderRadius: avatarSize / 2,
+      },
+    }),
+    [cardWidth, avatarSize],
+  );
+
   return (
     <TouchableOpacity
-      style={styles.container}
+      style={[styles.container, dynamicStyles.container]}
       onPress={() => onPress(author)}
       activeOpacity={0.7}
       accessibilityLabel={`Author: ${author.name}`}
       accessibilityRole="button"
     >
-      <View style={styles.avatarContainer}>
+      <View style={[styles.avatarContainer, dynamicStyles.avatarContainer]}>
         {author.photoUrl ? (
           <Image
             source={{ uri: author.photoUrl }}
@@ -57,9 +77,6 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   avatarContainer: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
     overflow: 'hidden',
     backgroundColor: '#f0f0f0',
   },
