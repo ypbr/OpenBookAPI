@@ -103,6 +103,11 @@ export interface ApiError {
     instance?: string;
 }
 
+export interface BookPageInfo {
+    pageCount: number | null;
+    source: string | null;
+}
+
 export interface PaginationParams {
     page?: number;
     limit?: number;

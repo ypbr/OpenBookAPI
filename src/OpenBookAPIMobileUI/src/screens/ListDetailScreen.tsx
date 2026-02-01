@@ -13,11 +13,13 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { ReadingProgressModal } from '../components';
 import { SavedBook } from '../database';
 import { useBooksInList } from '../hooks/useBooksInList';
 import { useResponsive } from '../hooks/useResponsive';
 import { libraryService } from '../services/libraryService';
 import { LibraryStackParamList } from '../types';
+import { SystemListId } from '../types/library.types';
 
 type ListDetailScreenNavigationProp = NativeStackNavigationProp<
   LibraryStackParamList,
@@ -33,6 +35,14 @@ export const ListDetailScreen: React.FC = () => {
 
   const { books, loading, error, refresh } = useBooksInList(listId);
   const [refreshing, setRefreshing] = useState(false);
+
+  // Reading progress modal state
+  const [showProgressModal, setShowProgressModal] = useState(false);
+  const [selectedBookForProgress, setSelectedBookForProgress] =
+    useState<SavedBook | null>(null);
+
+  // Check if this is the "Reading" list
+  const isReadingList = listId === SystemListId.READING;
 
   // Dynamic styles for book images based on device type
   const dynamicImageStyles = useMemo(
@@ -90,11 +100,26 @@ export const ListDetailScreen: React.FC = () => {
     [listId],
   );
 
+  const handleProgressPress = useCallback((book: SavedBook) => {
+    setSelectedBookForProgress(book);
+    setShowProgressModal(true);
+  }, []);
+
+  const handleProgressModalClose = useCallback(() => {
+    setShowProgressModal(false);
+    setSelectedBookForProgress(null);
+  }, []);
+
   const renderBookItem = useCallback(
     ({ item }: { item: SavedBook }) => {
       const authorNames = JSON.parse(
         ((item._raw as Record<string, unknown>).author_names as string) || '[]',
       ) as string[];
+
+      // Get page tracking info
+      const totalPages = item.totalPages;
+      const currentPage = item.currentPage;
+      const hasPageTracking = totalPages !== null && totalPages > 0;
 
       return (
         <TouchableOpacity
@@ -132,18 +157,43 @@ export const ListDetailScreen: React.FC = () => {
                 <Text style={styles.ratingText}>⭐ {item.userRating}/5</Text>
               </View>
             )}
-            {item.readingProgress > 0 && (
-              <View style={styles.progressContainer}>
-                <View style={styles.progressBar}>
-                  <View
-                    style={[
-                      styles.progressFill,
-                      { width: `${item.readingProgress}%` },
-                    ]}
-                  />
+            {/* Reading progress - show only in Reading list or if progress exists */}
+            {(isReadingList || item.readingProgress > 0) && (
+              <TouchableOpacity
+                style={styles.progressContainer}
+                onPress={() => handleProgressPress(item)}
+                activeOpacity={0.7}
+              >
+                <View style={styles.progressBarContainer}>
+                  <View style={styles.progressBar}>
+                    <View
+                      style={[
+                        styles.progressFill,
+                        { width: `${item.readingProgress}%` },
+                      ]}
+                    />
+                    {hasPageTracking && (
+                      <Text
+                        style={[
+                          styles.pageTextInBar,
+                          item.readingProgress >= 50 &&
+                            styles.pageTextInBarLight,
+                        ]}
+                      >
+                        {currentPage || 0}/{totalPages}
+                      </Text>
+                    )}
+                    {isReadingList && !hasPageTracking && (
+                      <Text style={styles.updateProgressTextInBar}>
+                        Add progress
+                      </Text>
+                    )}
+                  </View>
                 </View>
-                <Text style={styles.progressText}>{item.readingProgress}%</Text>
-              </View>
+                <Text style={styles.progressPercent}>
+                  {item.readingProgress}%
+                </Text>
+              </TouchableOpacity>
             )}
           </View>
           <TouchableOpacity
@@ -157,16 +207,20 @@ export const ListDetailScreen: React.FC = () => {
         </TouchableOpacity>
       );
     },
-    [handleBookPress, handleRemoveBook, dynamicImageStyles],
+    [
+      handleBookPress,
+      handleRemoveBook,
+      handleProgressPress,
+      dynamicImageStyles,
+      isReadingList,
+    ],
   );
 
   const renderEmptyState = () => (
     <View style={styles.emptyContainer}>
       <Text style={styles.emptyIcon}>📖</Text>
       <Text style={styles.emptyTitle}>List is empty</Text>
-      <Text style={styles.emptyText}>
-        You can add books to this list using search.
-      </Text>
+      <Text style={styles.emptyText}>Search to add books to this list.</Text>
     </View>
   );
 
@@ -216,6 +270,15 @@ export const ListDetailScreen: React.FC = () => {
           />
         }
         ItemSeparatorComponent={() => <View style={styles.separator} />}
+      />
+
+      {/* Reading Progress Modal */}
+      <ReadingProgressModal
+        visible={showProgressModal}
+        onClose={handleProgressModalClose}
+        book={selectedBookForProgress}
+        onProgressUpdated={refresh}
+        isInitialSetup={false}
       />
     </SafeAreaView>
   );
@@ -349,22 +412,47 @@ const styles = StyleSheet.create({
   progressContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 8,
+  },
+  progressBarContainer: {
+    flex: 1,
   },
   progressBar: {
-    flex: 1,
-    height: 4,
+    height: 20,
     backgroundColor: '#e0e0e0',
-    borderRadius: 2,
-    marginRight: 8,
+    borderRadius: 10,
+    justifyContent: 'center',
+    overflow: 'hidden',
   },
   progressFill: {
-    height: '100%',
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    bottom: 0,
     backgroundColor: '#4CAF50',
-    borderRadius: 2,
+    borderRadius: 10,
   },
-  progressText: {
+  pageTextInBar: {
     fontSize: 11,
-    color: '#888',
+    fontWeight: '600',
+    color: '#333',
+    textAlign: 'center',
+  },
+  pageTextInBarLight: {
+    color: '#fff',
+  },
+  updateProgressTextInBar: {
+    fontSize: 11,
+    color: '#007AFF',
+    fontWeight: '500',
+    textAlign: 'center',
+  },
+  progressPercent: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#4CAF50',
+    minWidth: 36,
+    textAlign: 'right',
   },
   removeButton: {
     width: 32,

@@ -54,6 +54,11 @@ export interface ISavedBook {
     userRating: number | null;
     notes: string | null;
     readingProgress: number;
+    // Reading tracking fields
+    totalPages: number | null;
+    currentPage: number | null;
+    readingStartedAt: number | null;
+    readingFinishedAt: number | null;
     createdAt: number;
     updatedAt: number;
     localSyncStatus: LocalSyncStatus;

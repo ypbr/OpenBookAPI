@@ -8,6 +8,7 @@ import {
     SavedBook,
     savedBooksCollection,
 } from '../database';
+import { SystemListId } from '../types/library.types';
 
 /**
  * Book data input for saving to library
@@ -362,5 +363,104 @@ export const libraryService = {
      */
     async getAllBooks(): Promise<SavedBook[]> {
         return savedBooksCollection.query(Q.sortBy('created_at', Q.desc)).fetch();
+    },
+
+    // ==================== READING PROGRESS ====================
+
+    /**
+     * Set total pages and current page for a book
+     */
+    async setBookPages(bookId: string, totalPages: number, currentPage: number = 0): Promise<void> {
+        const validTotalPages = Math.max(1, totalPages);
+        const validCurrentPage = Math.max(0, Math.min(currentPage, validTotalPages));
+        const progress = validTotalPages > 0
+            ? Math.min(100, Math.round((validCurrentPage / validTotalPages) * 100))
+            : 0;
+
+        await database.write(async () => {
+            const book = await savedBooksCollection.find(bookId);
+            await book.update((b: SavedBook) => {
+                b.totalPages = validTotalPages;
+                b.currentPage = validCurrentPage;
+                b.readingProgress = progress;
+                b.localSyncStatus = 'pending';
+            });
+        });
+    },
+
+    /**
+     * Update current reading page
+     */
+    async updateCurrentPage(bookId: string, currentPage: number): Promise<void> {
+        const book = await savedBooksCollection.find(bookId);
+        const totalPages = book.totalPages || 0;
+        const validCurrentPage = Math.max(0, Math.min(currentPage, totalPages));
+        const progress = totalPages > 0
+            ? Math.min(100, Math.round((validCurrentPage / totalPages) * 100))
+            : 0;
+
+        await database.write(async () => {
+            await book.update((b: SavedBook) => {
+                b.currentPage = validCurrentPage;
+                b.readingProgress = progress;
+                b.localSyncStatus = 'pending';
+            });
+        });
+    },
+
+    /**
+     * Start reading a book (sets reading start timestamp)
+     */
+    async startReading(bookId: string): Promise<void> {
+        await database.write(async () => {
+            const book = await savedBooksCollection.find(bookId);
+            await book.update((b: SavedBook) => {
+                (b._raw as Record<string, unknown>).reading_started_at = Date.now();
+                b.localSyncStatus = 'pending';
+            });
+        });
+    },
+
+    /**
+     * Finish reading a book (sets finish timestamp, moves to "Read" list)
+     */
+    async finishReading(bookId: string): Promise<void> {
+        await database.write(async () => {
+            const book = await savedBooksCollection.find(bookId);
+            await book.update((b: SavedBook) => {
+                (b._raw as Record<string, unknown>).reading_finished_at = Date.now();
+                b.readingProgress = 100;
+                if (b.totalPages && !b.currentPage) {
+                    b.currentPage = b.totalPages;
+                }
+                b.localSyncStatus = 'pending';
+            });
+        });
+
+        // Move book from "Reading" to "Read" list
+        try {
+            // Remove from "Reading" list
+            await this.removeBookFromList(bookId, SystemListId.READING);
+
+            // Add to "Read" list
+            const book = await savedBooksCollection.find(bookId);
+            const bookData = {
+                workKey: book.workKey,
+                title: book.title,
+                authorNames: book.authorNames,
+                coverUrl: book.coverUrl || undefined,
+                firstPublishYear: book.firstPublishYear ?? undefined,
+            };
+            await this.addBookToList(bookData, SystemListId.READ);
+        } catch (err) {
+            console.error('Error moving book to Read list:', err);
+        }
+    },
+
+    /**
+     * Check if a book is in the "Reading" list
+     */
+    async isBookInReadingList(workKey: string): Promise<boolean> {
+        return this.isBookInList(workKey, SystemListId.READING);
     },
 };

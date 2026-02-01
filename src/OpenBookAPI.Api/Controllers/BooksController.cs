@@ -107,4 +107,18 @@ public class BooksController : ControllerBase
 
         return Ok(ratings);
     }
+
+    /// <summary>
+    /// Get page count for a work (from its editions)
+    /// </summary>
+    [HttpGet("{workKey}/pages")]
+    public async Task<IActionResult> GetPageCount(string workKey)
+    {
+        var pageInfo = await _bookService.GetPageCountAsync(workKey);
+
+        if (pageInfo == null)
+            return NotFound(new { error = $"Page count for work '{workKey}' not found" });
+
+        return Ok(pageInfo);
+    }
 }

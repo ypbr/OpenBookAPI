@@ -10,4 +10,5 @@ public interface IBookService
     Task<BookEdition?> GetBookByIsbnAsync(string isbn);
     Task<BookshelvesInfo?> GetBookshelvesAsync(string workKey);
     Task<RatingsInfo?> GetRatingsAsync(string workKey);
+    Task<BookPageInfo?> GetPageCountAsync(string workKey);
 }

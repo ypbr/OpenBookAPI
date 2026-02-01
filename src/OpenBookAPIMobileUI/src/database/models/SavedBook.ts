@@ -41,6 +41,11 @@ export default class SavedBook extends Model {
     @field('user_rating') userRating!: number | null;
     @text('notes') notes!: string | null;
     @field('reading_progress') readingProgress!: number;
+    // Reading tracking fields
+    @field('total_pages') totalPages!: number | null;
+    @field('current_page') currentPage!: number | null;
+    @date('reading_started_at') readingStartedAt!: Date | null;
+    @date('reading_finished_at') readingFinishedAt!: Date | null;
     @readonly @date('created_at') createdAt!: Date;
     @date('updated_at') updatedAt!: Date;
     @text('local_sync_status') localSyncStatus!: LocalSyncStatus;
@@ -95,6 +100,77 @@ export default class SavedBook extends Model {
         await this.update(book => {
             book.localSyncStatus = 'synced';
             book.serverId = serverId;
+        });
+    }
+
+    /**
+     * Get calculated reading progress based on current page and total pages
+     */
+    get calculatedProgress(): number {
+        if (!this.totalPages || this.totalPages <= 0) {
+            return this.readingProgress;
+        }
+        if (!this.currentPage || this.currentPage <= 0) {
+            return 0;
+        }
+        return Math.min(100, Math.round((this.currentPage / this.totalPages) * 100));
+    }
+
+    /**
+     * Check if book has page tracking enabled
+     */
+    get hasPageTracking(): boolean {
+        return this.totalPages !== null && this.totalPages > 0;
+    }
+
+    /**
+     * Set total pages for the book
+     */
+    async setTotalPages(pages: number) {
+        const validPages = Math.max(1, pages);
+        await this.update(book => {
+            book.totalPages = validPages;
+            book.localSyncStatus = 'pending';
+        });
+    }
+
+    /**
+     * Update current reading page and auto-calculate progress
+     */
+    async setCurrentPage(page: number) {
+        const validPage = Math.max(0, Math.min(page, this.totalPages || page));
+        const progress = this.totalPages && this.totalPages > 0
+            ? Math.min(100, Math.round((validPage / this.totalPages) * 100))
+            : 0;
+
+        await this.update(book => {
+            book.currentPage = validPage;
+            book.readingProgress = progress;
+            book.localSyncStatus = 'pending';
+        });
+    }
+
+    /**
+     * Start reading the book (sets reading start timestamp)
+     */
+    async startReading() {
+        await this.update(book => {
+            book.readingStartedAt = new Date();
+            book.localSyncStatus = 'pending';
+        });
+    }
+
+    /**
+     * Finish reading the book (sets reading finish timestamp and progress to 100%)
+     */
+    async finishReading() {
+        await this.update(book => {
+            book.readingFinishedAt = new Date();
+            book.readingProgress = 100;
+            if (book.totalPages && !book.currentPage) {
+                book.currentPage = book.totalPages;
+            }
+            book.localSyncStatus = 'pending';
         });
     }
 }

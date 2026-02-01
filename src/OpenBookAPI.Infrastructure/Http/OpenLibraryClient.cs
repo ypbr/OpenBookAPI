@@ -187,4 +187,36 @@ public class OpenLibraryClient : IOpenLibraryClient
             throw new OpenLibraryException($"Failed to get author works: {ex.Message}", ex);
         }
     }
+
+    public async Task<int?> GetWorkPageCountAsync(string workKey)
+    {
+        try
+        {
+            // Get editions for the work (limit to first 20 to find one with page count)
+            var editionsUrl = $"/works/{workKey}/editions.json?limit=20";
+
+            var response = await _httpClient.GetAsync(editionsUrl);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+                    return null;
+
+                return null; // Silently fail for page count - it's optional
+            }
+
+            var dto = await response.Content.ReadFromJsonAsync<OpenLibraryEditionsResponseDto>(_jsonOptions);
+            if (dto?.Entries == null || dto.Entries.Count == 0)
+                return null;
+
+            // Find the first edition with a page count
+            var editionWithPages = dto.Entries.FirstOrDefault(e => e.NumberOfPages.HasValue && e.NumberOfPages > 0);
+            return editionWithPages?.NumberOfPages;
+        }
+        catch
+        {
+            // Return null on any error - page count is optional
+            return null;
+        }
+    }
 }

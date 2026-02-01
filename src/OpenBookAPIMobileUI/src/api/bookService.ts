@@ -1,6 +1,7 @@
 import { API_CONFIG } from '../constants/config';
 import {
     BookDetail,
+    BookPageInfo,
     BookSearchResult,
     SearchParams,
 } from '../types/api.types';
@@ -36,5 +37,22 @@ export const bookService = {
      */
     getByIsbn: async (isbn: string): Promise<BookDetail> => {
         return apiClient.get<BookDetail>(`${API_CONFIG.ENDPOINTS.BOOKS.ISBN}/${isbn}`);
+    },
+
+    /**
+     * Get page count for a work (from its editions)
+     */
+    getPageCount: async (workKey: string): Promise<BookPageInfo | null> => {
+        if (!workKey) {
+            return null;
+        }
+        // Remove /works/ prefix if present
+        const cleanKey = workKey.replace('/works/', '');
+        try {
+            return await apiClient.get<BookPageInfo>(`${API_CONFIG.ENDPOINTS.BOOKS.DETAIL}/${cleanKey}/pages`);
+        } catch {
+            // Page count is optional, return null on error
+            return null;
+        }
     },
 };
