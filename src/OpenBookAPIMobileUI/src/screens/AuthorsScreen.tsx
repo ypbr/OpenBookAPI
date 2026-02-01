@@ -9,6 +9,7 @@ import {
   LoadingIndicator,
   SearchBar,
 } from '../components';
+import { useResponsive } from '../hooks/useResponsive';
 import { AuthorSearchResult, AuthorSummary } from '../types/api.types';
 
 interface AuthorsScreenProps {
@@ -16,6 +17,7 @@ interface AuthorsScreenProps {
 }
 
 export const AuthorsScreen: React.FC<AuthorsScreenProps> = ({ navigation }) => {
+  const { authorColumns, authorCardWidth, authorAvatarSize } = useResponsive();
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<AuthorSearchResult | null>(
     null,
@@ -90,9 +92,14 @@ export const AuthorsScreen: React.FC<AuthorsScreenProps> = ({ navigation }) => {
 
   const renderAuthor = useCallback(
     ({ item }: { item: AuthorSummary }) => (
-      <AuthorCard author={item} onPress={handleAuthorPress} />
+      <AuthorCard
+        author={item}
+        onPress={handleAuthorPress}
+        cardWidth={authorColumns > 1 ? authorCardWidth : undefined}
+        avatarSize={authorAvatarSize}
+      />
     ),
-    [handleAuthorPress],
+    [handleAuthorPress, authorColumns, authorCardWidth, authorAvatarSize],
   );
 
   const renderFooter = useCallback(() => {
@@ -136,6 +143,9 @@ export const AuthorsScreen: React.FC<AuthorsScreenProps> = ({ navigation }) => {
         data={searchResults.authors}
         renderItem={renderAuthor}
         keyExtractor={(item, index) => `${item.key}-${index}`}
+        key={`authors-grid-${authorColumns}`}
+        numColumns={authorColumns}
+        columnWrapperStyle={authorColumns > 1 ? styles.row : undefined}
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}
         refreshControl={
@@ -171,5 +181,8 @@ const styles = StyleSheet.create({
   },
   listContent: {
     padding: 16,
+  },
+  row: {
+    justifyContent: 'space-between',
   },
 });

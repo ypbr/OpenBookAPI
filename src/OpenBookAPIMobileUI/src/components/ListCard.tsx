@@ -1,16 +1,7 @@
 import { Q } from '@nozbe/watermelondb';
-import React, { useEffect, useState } from 'react';
-import {
-  Dimensions,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import React, { useEffect, useMemo, useState } from 'react';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { listBooksCollection } from '../database';
-
-const { width } = Dimensions.get('window');
-const CARD_WIDTH = (width - 48) / 2;
 
 interface ListCardProps {
   id: string;
@@ -20,6 +11,7 @@ interface ListCardProps {
   isSystem: boolean;
   onPress: () => void;
   onLongPress?: () => void;
+  cardWidth: number;
 }
 
 export const ListCard: React.FC<ListCardProps> = ({
@@ -30,8 +22,19 @@ export const ListCard: React.FC<ListCardProps> = ({
   isSystem,
   onPress,
   onLongPress,
+  cardWidth,
 }) => {
   const [bookCount, setBookCount] = useState<number>(0);
+
+  // Calculate dynamic styles based on cardWidth
+  const dynamicStyles = useMemo(
+    () => ({
+      container: {
+        width: cardWidth,
+      },
+    }),
+    [cardWidth],
+  );
 
   useEffect(() => {
     const subscription = listBooksCollection
@@ -47,7 +50,11 @@ export const ListCard: React.FC<ListCardProps> = ({
 
   return (
     <TouchableOpacity
-      style={[styles.container, { borderLeftColor: color }]}
+      style={[
+        styles.container,
+        dynamicStyles.container,
+        { borderLeftColor: color },
+      ]}
       onPress={onPress}
       onLongPress={onLongPress}
       activeOpacity={0.7}
@@ -76,7 +83,6 @@ export const ListCard: React.FC<ListCardProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    width: CARD_WIDTH,
     marginBottom: 16,
     backgroundColor: '#fff',
     borderRadius: 12,

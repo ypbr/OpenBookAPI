@@ -1,6 +1,6 @@
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -15,6 +15,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { SavedBook } from '../database';
 import { useBooksInList } from '../hooks/useBooksInList';
+import { useResponsive } from '../hooks/useResponsive';
 import { libraryService } from '../services/libraryService';
 import { LibraryStackParamList } from '../types';
 
@@ -28,9 +29,19 @@ export const ListDetailScreen: React.FC = () => {
   const navigation = useNavigation<ListDetailScreenNavigationProp>();
   const route = useRoute<ListDetailScreenRouteProp>();
   const { listId, listName } = route.params;
+  const { listDetailImageWidth, listDetailImageHeight } = useResponsive();
 
   const { books, loading, error, refresh } = useBooksInList(listId);
   const [refreshing, setRefreshing] = useState(false);
+
+  // Dynamic styles for book images based on device type
+  const dynamicImageStyles = useMemo(
+    () => ({
+      width: listDetailImageWidth,
+      height: listDetailImageHeight,
+    }),
+    [listDetailImageWidth, listDetailImageHeight],
+  );
 
   const handleRefresh = useCallback(async () => {
     setRefreshing(true);
@@ -94,7 +105,7 @@ export const ListDetailScreen: React.FC = () => {
           accessibilityLabel={`${item.title}, ${authorNames.join(', ')}`}
           accessibilityRole="button"
         >
-          <View style={styles.bookImageContainer}>
+          <View style={[styles.bookImageContainer, dynamicImageStyles]}>
             {item.coverUrl ? (
               <Image
                 source={{ uri: item.coverUrl }}
@@ -146,7 +157,7 @@ export const ListDetailScreen: React.FC = () => {
         </TouchableOpacity>
       );
     },
-    [handleBookPress, handleRemoveBook],
+    [handleBookPress, handleRemoveBook, dynamicImageStyles],
   );
 
   const renderEmptyState = () => (
@@ -293,8 +304,6 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   bookImageContainer: {
-    width: 70,
-    height: 100,
     borderRadius: 8,
     overflow: 'hidden',
     backgroundColor: '#f0f0f0',
